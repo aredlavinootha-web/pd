@@ -4,25 +4,29 @@ Plagiarism Detector - Deployable Flask application with basic UI.
 
 from flask import Flask, request, render_template_string, jsonify
 
-from plagiarism_detect_copydetect import compare_code_copydetect, detect as detect_copydetect
+from plagiarism_detect_copydetect import compare_code_copydetect
 from plagiarism_detect_difflib import compare_code_difflib
-from plagiarism_detect_treesitter import detect as detect_tree_sitter
 from plagiarism_detect_treesitter_python import compare_code_treesitter_python
 from plagiarism_detect_treesitter_cpp import compare_code_treesitter_cpp
 
 app = Flask(__name__)
 
-# New API request schema (POST /api/check):
-# {
-#   "question_id": str,
-#   "current_submission": { "student_id", "submission_id", "code" },
-#   "past_submissions": [ { "student_id", "submission_id", "code" }, ... ],
-#   "language": "python" | "cpp" (optional, default "python"),
-#   "threshold": float (optional, default 0.85)
-# }
-# Response: { "copydetect": {...}, "tree_sitter": {...} }
 
-# Legacy request schema:
+@app.after_request
+def add_cors_headers(response):
+    """Allow access from any origin - no restrictions."""
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
+
+
+@app.route("/api/detect", methods=["OPTIONS"])
+def cors_preflight():
+    return "", 204
+
+
+# Request schema:
 # {
 #   "main_student": { "id": str, "code": str },
 #   "other_students": [ { "id": str, "code": str }, ... ],
@@ -325,49 +329,6 @@ def index():
     return render_template_string(HTML_TEMPLATE)
 
 
-@app.route("/api/check", methods=["POST"])
-def api_check():
-    """
-    POST /api/check - Plagiarism detection with new request/response format.
-    Returns { "copydetect": {...}, "tree_sitter": {...} }
-    """
-    try:
-        data = request.get_json(force=True, silent=True)
-        if not data:
-            return jsonify({"error": "Invalid or missing JSON body"}), 400
-
-        current_submission = data.get("current_submission")
-        if not current_submission:
-            return jsonify({"error": "Missing 'current_submission' with 'student_id', 'submission_id', 'code'"}), 400
-
-        past_submissions = data.get("past_submissions", [])
-        if not isinstance(past_submissions, list):
-            return jsonify({"error": "'past_submissions' must be a list"}), 400
-
-        language = data.get("language", "python")
-        threshold = float(data.get("threshold", 0.85))
-
-        copydetect_result = detect_copydetect(
-            current_submission=current_submission,
-            past_submissions=past_submissions,
-            language=language,
-            threshold=threshold,
-        )
-        tree_sitter_result = detect_tree_sitter(
-            current_submission=current_submission,
-            past_submissions=past_submissions,
-            language=language,
-            threshold=threshold,
-        )
-
-        return jsonify({
-            "copydetect": copydetect_result,
-            "tree_sitter": tree_sitter_result,
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @app.route("/api/detect", methods=["POST"])
 def api_detect():
     try:
@@ -409,4 +370,6 @@ def api_detect():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=True)

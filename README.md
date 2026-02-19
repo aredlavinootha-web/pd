@@ -80,4 +80,3 @@ python app.py
 ```
 
 Open http://localhost:5000 for the UI, or POST to `http://localhost:5000/api/detect` for API access.
-# plagiariasm

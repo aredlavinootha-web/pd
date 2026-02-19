@@ -22,7 +22,7 @@ def compare_code_copydetect(
     main_code: str,
     other_students: list[dict],
     language: str = "python",
-    k: int = 25,
+    k: int = 10,
     win_size: int = 1,
 ) -> dict:
     """
@@ -112,56 +112,4 @@ def compare_code_copydetect(
         "available": True,
         "main_student_id": main_student_id,
         "results": results,
-    }
-
-
-def detect(
-    current_submission: dict,
-    past_submissions: list[dict],
-    language: str = "python",
-    threshold: float = 0.85,
-) -> dict:
-    """
-    Detect plagiarism using copydetect. Returns expected response format.
-
-    Args:
-        current_submission: { "student_id", "submission_id", "code" }
-        past_submissions: List of { "student_id", "submission_id", "code" }
-        language: "python" or "cpp"
-        threshold: Minimum similarity to count as match (default 0.85)
-
-    Returns:
-        { "matches_found": bool, "threshold_used": float, "matches": [...] }
-    """
-    if copydetect is None:
-        return {"matches_found": False, "threshold_used": threshold, "matches": []}
-
-    main_code = current_submission.get("code", "")
-    main_id = current_submission.get("student_id", "")
-
-    other_students = [
-        {"id": p.get("student_id", ""), "code": p.get("code", ""), "submission_id": p.get("submission_id", "")}
-        for p in past_submissions
-    ]
-
-    raw = compare_code_copydetect(main_id, main_code, other_students, language)
-    if not raw.get("available") or "error" in raw:
-        return {"matches_found": False, "threshold_used": threshold, "matches": []}
-
-    matches = []
-    for r in raw.get("results", []):
-        sim = r.get("similarity", 0)
-        if sim >= threshold:
-            other = next((p for p in past_submissions if p.get("student_id") == r.get("other_student_id")), {})
-            matches.append({
-                "matched_student_id": r.get("other_student_id", ""),
-                "matched_submission_id": other.get("submission_id", ""),
-                "similarity_score": round(sim, 4),
-                "matched_code": other.get("code", ""),
-            })
-
-    return {
-        "matches_found": len(matches) > 0,
-        "threshold_used": threshold,
-        "matches": matches,
     }
