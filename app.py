@@ -361,8 +361,23 @@ def api_detect():
             if tool in tool_map:
                 comparisons.append(tool_map[tool]())
 
+        # Build per-student summary (avg similarity across tools)
+        other_ids = [o.get("id", "unknown") for o in other_students]
+        summary = []
+        for oid in other_ids:
+            scores = []
+            for comp in comparisons:
+                if comp.get("available") and comp.get("results"):
+                    for r in comp["results"]:
+                        if r.get("other_student_id") == oid and r.get("similarity") is not None:
+                            scores.append(r["similarity"])
+                            break
+            avg = round(sum(scores) / len(scores), 4) if scores else 0.0
+            summary.append({"other_student_id": oid, "avg_similarity": avg, "tool_count": len(scores)})
+
         return jsonify({
             "main_student_id": main_id,
+            "summary": summary,
             "comparisons": comparisons,
         })
     except Exception as e:
