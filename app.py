@@ -17,12 +17,13 @@ def add_cors_headers(response):
     """Allow access from any origin - no restrictions."""
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Max-Age"] = "86400"
     return response
 
 
-@app.route("/api/detect", methods=["OPTIONS"])
-def cors_preflight():
+@app.route("/api/<path:path>", methods=["OPTIONS"])
+def cors_preflight(path):
     return "", 204
 
 
@@ -373,9 +374,7 @@ def index():
     return render_template_string(HTML_TEMPLATE)
 
 
-@app.route("/api/check", methods=["OPTIONS"])
-def cors_preflight_check():
-    return "", 204
+
 
 
 @app.route("/api/check", methods=["POST"])
