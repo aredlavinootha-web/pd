@@ -324,9 +324,112 @@ HTML_TEMPLATE = """
 """
 
 
+SIMILARITY_THRESHOLD = 0.85
+
+
+def _build_submission_lookup(past_submissions: list[dict]) -> dict:
+    """Build a lookup from student_id to submission details."""
+    lookup = {}
+    for submission in past_submissions:
+        student_id = submission.get("student_id", "unknown")
+        lookup[student_id] = {
+            "submission_id": submission.get("submission_id", ""),
+            "code": submission.get("code", ""),
+        }
+    return lookup
+
+
+def _convert_tool_result_to_check_format(
+    tool_result: dict,
+    submission_lookup: dict,
+    threshold: float,
+) -> dict:
+    """Convert an existing tool result dict into the api/check response format."""
+    matches = []
+    for result in tool_result.get("results", []):
+        similarity = result.get("similarity", 0.0)
+        if similarity < threshold:
+            continue
+
+        student_id = result.get("other_student_id", "unknown")
+        submission_details = submission_lookup.get(student_id, {})
+
+        matches.append({
+            "matched_student_id": student_id,
+            "matched_submission_id": submission_details.get("submission_id", ""),
+            "similarity_score": similarity,
+            "matched_code": submission_details.get("code", ""),
+        })
+
+    return {
+        "matches_found": len(matches) > 0,
+        "threshold_used": threshold,
+        "matches": matches,
+    }
+
+
 @app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
+
+
+@app.route("/api/check", methods=["OPTIONS"])
+def cors_preflight_check():
+    return "", 204
+
+
+@app.route("/api/check", methods=["POST"])
+def api_check():
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+        current_submission = data.get("current_submission")
+        if not current_submission:
+            return jsonify({"error": "Missing 'current_submission'"}), 400
+
+        main_id = current_submission.get("student_id", "")
+        main_code = current_submission.get("code", "")
+        past_submissions = data.get("past_submissions", [])
+
+        if not isinstance(past_submissions, list):
+            return jsonify({"error": "'past_submissions' must be a list"}), 400
+
+        other_students = [
+            {"id": s.get("student_id", ""), "code": s.get("code", "")}
+            for s in past_submissions
+        ]
+        submission_lookup = _build_submission_lookup(past_submissions)
+
+        threshold = data.get("threshold", SIMILARITY_THRESHOLD)
+        language = data.get("language", "python")
+
+        tool_runners = {
+            "copy_detect": lambda: compare_code_copydetect(
+                main_id, main_code, other_students, language,
+            ),
+            "tree_sitter_python": lambda: compare_code_treesitter_python(
+                main_id, main_code, other_students,
+            ),
+            "tree_sitter_cpp": lambda: compare_code_treesitter_cpp(
+                main_id, main_code, other_students,
+            ),
+            "difflib": lambda: compare_code_difflib(
+                main_id, main_code, other_students,
+            ),
+        }
+
+        response = {}
+        for tool_name, runner in tool_runners.items():
+            raw_result = runner()
+            response[tool_name] = _convert_tool_result_to_check_format(
+                raw_result, submission_lookup, threshold,
+            )
+
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/api/detect", methods=["POST"])
