@@ -4,7 +4,52 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="." />
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="support tree-sitter ast based comparision for all languages.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/compare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/ref.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,18 +58,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "aredlavinootha-web"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;aredlavinootha-web&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/aredlavinootha-web/pd.git",
-    "accountId": "4dfbccf3-0cf0-42db-b54e-58bcae3a7710"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/aredlavinootha-web/pd.git&quot;,
+    &quot;accountId&quot;: &quot;4dfbccf3-0cf0-42db-b54e-58bcae3a7710&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -33,16 +78,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/nxtwave-tech/Downloads/plagiarism_detect/plagiarism_detector"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/nxtwave-tech/Downloads/plagiarism_detect/plagiarism_detector&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -74,7 +119,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772001428831</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="support tree-sitter ast based comparision for all languages.">
+      <option name="closed" value="true" />
+      <created>1772084581018</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1772084581018</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -91,6 +144,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add end point api/check" />
     <MESSAGE value="." />
-    <option name="LAST_COMMIT_MESSAGE" value="." />
+    <MESSAGE value="support tree-sitter ast based comparision for all languages." />
+    <option name="LAST_COMMIT_MESSAGE" value="support tree-sitter ast based comparision for all languages." />
   </component>
 </project>

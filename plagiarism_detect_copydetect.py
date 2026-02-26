@@ -13,7 +13,7 @@ except ImportError:
 
 def _get_file_extension(language: str) -> str:
     """Map language to file extension for copydetect tokenizer."""
-    lang_map = {"python": "py", "cpp": "cpp", "c": "c", "java": "java", "javascript": "js"}
+    lang_map = {"python": "py", "cpp": "cpp", "c": "c", "java": "java", "javascript": "js", "csharp": "cs"}
     return lang_map.get(language.lower(), "py")
 
 
