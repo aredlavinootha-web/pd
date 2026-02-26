@@ -8,6 +8,10 @@ from plagiarism_detect_copydetect import compare_code_copydetect
 from plagiarism_detect_difflib import compare_code_difflib
 from plagiarism_detect_treesitter_python import compare_code_treesitter_python
 from plagiarism_detect_treesitter_cpp import compare_code_treesitter_cpp
+from plagiarism_detect_treesitter_java import compare_code_treesitter_java
+from plagiarism_detect_treesitter_c import compare_code_treesitter_c
+from plagiarism_detect_treesitter_csharp import compare_code_treesitter_csharp
+from plagiarism_detect_treesitter_javascript import compare_code_treesitter_javascript
 
 app = Flask(__name__)
 
@@ -417,6 +421,18 @@ def api_check():
             "difflib": lambda: compare_code_difflib(
                 main_id, main_code, other_students,
             ),
+            "tree_sitter_java": lambda: compare_code_treesitter_java(
+                main_id, main_code, other_students,
+            ),
+            "tree_sitter_c": lambda: compare_code_treesitter_c(
+                main_id, main_code, other_students,
+            ),
+            "tree_sitter_csharp": lambda: compare_code_treesitter_csharp(
+                main_id, main_code, other_students,
+            ),
+            "tree_sitter_javascript": lambda: compare_code_treesitter_javascript(
+                main_id, main_code, other_students,
+            ),
         }
 
         response = {}
@@ -457,6 +473,10 @@ def api_detect():
             "difflib": lambda: compare_code_difflib(main_id, main_code, other_students),
             "treesitter_python": lambda: compare_code_treesitter_python(main_id, main_code, other_students),
             "treesitter_cpp": lambda: compare_code_treesitter_cpp(main_id, main_code, other_students),
+            "treesitter_java": lambda: compare_code_treesitter_java(main_id, main_code, other_students),
+            "treesitter_c": lambda: compare_code_treesitter_c(main_id, main_code, other_students),
+            "treesitter_csharp": lambda: compare_code_treesitter_csharp(main_id, main_code, other_students),
+            "treesitter_javascript": lambda: compare_code_treesitter_javascript(main_id, main_code, other_students),
         }
 
         for tool in tools:
