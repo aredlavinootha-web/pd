@@ -2,7 +2,7 @@ using System;
 using System.IO;
 
 class TextTransform {
-    static string Transform(string s) => s.ToLower();
+    static string Transform(string s) => s.ToUpper();
 
     static void Main(string[] args) {
         if (args.Length < 2) { Console.Error.WriteLine("Usage: input output"); return; }

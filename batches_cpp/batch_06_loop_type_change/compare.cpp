@@ -3,8 +3,8 @@
 using namespace std;
 
 int sumList(const vector<int>& nums) {
-    int total = 0;
-    for (int n : nums) total += n;
+    int total = 0, i = 0;
+    while (i < (int)nums.size()) { total += nums[i]; i++; }
     return total;
 }
 

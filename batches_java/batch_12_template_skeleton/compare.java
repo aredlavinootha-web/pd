@@ -2,7 +2,7 @@ import java.io.*;
 
 public class TextTransform {
     public static String transform(String input) {
-        return input.toUpperCase();
+        return input.toLowerCase();
     }
 
     public static void main(String[] args) throws IOException {

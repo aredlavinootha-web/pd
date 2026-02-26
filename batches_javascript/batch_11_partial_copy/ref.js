@@ -1,18 +1,9 @@
 const fs = require('fs');
 
-function fetchLines(path) {
-    return fs.readFileSync(path, 'utf8').split('\n');
+function main() {
+    const lines = fs.readFileSync('input.txt', 'utf8').split('\n').filter(l => l.trim().length > 5).map(l => l.trim());
+    fs.writeFileSync('output.txt', lines.join('\n'));
+    console.log(lines.length);
 }
 
-function saveResults(items, path) {
-    fs.writeFileSync(path, items.join('\n'));
-}
-
-function processData() {
-    const data = fetchLines('input.txt');
-    const filtered = data.filter(x => x.trim().length > 5).map(x => x.trim());
-    saveResults(filtered, 'output.txt');
-    return filtered.length;
-}
-
-console.log(processData());
+main();

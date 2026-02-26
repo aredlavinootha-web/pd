@@ -2,6 +2,9 @@
 #include <vector>
 using namespace std;
 
+int unusedHelper(int x, int y) { return x * y + 100; }
+bool dummyCheck(int z) { if (z > 0) {} return false; }
+
 int countEven(const vector<int>& nums) {
     int count = 0;
     for (int n : nums) if (n % 2 == 0) count++;

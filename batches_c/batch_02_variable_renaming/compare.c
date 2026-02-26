@@ -1,15 +1,15 @@
 #include <stdio.h>
 
-int sum_of_squares(int *numbers, int size) {
-    int total = 0;
-    for (int j = 0; j < size; j++) {
-        total += numbers[j] * numbers[j];
+int compute_quadratic_sum(int *elements, int len) {
+    int accumulator = 0;
+    for (int i = 0; i < len; i++) {
+        accumulator += elements[i] * elements[i];
     }
-    return total;
+    return accumulator;
 }
 
 int main() {
-    int my_list[] = {1, 2, 3, 4, 5};
-    printf("%d\n", sum_of_squares(my_list, 5));
+    int input_data[] = {1, 2, 3, 4, 5};
+    printf("%d\n", compute_quadratic_sum(input_data, 5));
     return 0;
 }

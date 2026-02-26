@@ -1,16 +1,16 @@
 using System;
 
 class SumOfSquares {
-    static int SumSquares(int[] numbers) {
-        int total = 0;
-        foreach (int num in numbers) total += num * num;
-        return total;
+    static int ComputeQuadraticSum(int[] elements) {
+        int accumulator = 0;
+        foreach (int value in elements) accumulator += value * value;
+        return accumulator;
     }
 
-    static int ProcessList(int[] data) => SumSquares(data);
+    static int HandleInput(int[] collection) => ComputeQuadraticSum(collection);
 
     static void Main() {
-        int[] myList = {1, 2, 3, 4, 5};
-        Console.WriteLine(ProcessList(myList));
+        int[] inputData = {1, 2, 3, 4, 5};
+        Console.WriteLine(HandleInput(inputData));
     }
 }

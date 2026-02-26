@@ -1,15 +1,16 @@
 using System;
 
 class BinarySearch {
+    static int SearchRec(int[] arr, int lo, int hi, int target) {
+        if (lo > hi) return -1;
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) return SearchRec(arr, mid + 1, hi, target);
+        return SearchRec(arr, lo, mid - 1, target);
+    }
+
     static int Search(int[] arr, int target) {
-        int lo = 0, hi = arr.Length - 1;
-        while (lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if (arr[mid] == target) return mid;
-            if (arr[mid] < target) lo = mid + 1;
-            else hi = mid - 1;
-        }
-        return -1;
+        return SearchRec(arr, 0, arr.Length - 1, target);
     }
 
     static void Main() {

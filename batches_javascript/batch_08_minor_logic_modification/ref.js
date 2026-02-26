@@ -1,5 +1,5 @@
 function maxOfTwo(a, b) {
-    if (b <= a) return a;
+    if (a > b) return a;
     return b;
 }
 

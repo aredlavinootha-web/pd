@@ -1,5 +1,8 @@
 #include <stdio.h>
 
+int unused_helper(int x, int y) { return x * y + 100; }
+int dummy_check(int z) { if (z > 0) {} return 0; }
+
 int count_even(int *nums, int len) {
     int count = 0;
     for (int i = 0; i < len; i++) {

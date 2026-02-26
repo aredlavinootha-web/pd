@@ -1,23 +1,19 @@
-import java.util.*;
+import java.util.Arrays;
 
-public class QuickSort {
-    public static List<Integer> quickSort(List<Integer> arr) {
-        if (arr.size() <= 1) return arr;
-        int pivot = arr.get(arr.size() / 2);
-        List<Integer> left = new ArrayList<>(), mid = new ArrayList<>(), right = new ArrayList<>();
-        for (int x : arr) {
-            if (x < pivot) left.add(x);
-            else if (x == pivot) mid.add(x);
-            else right.add(x);
+public class SelectionSort {
+    public static int[] selectionSort(int[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            int minIdx = i;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j] < arr[minIdx]) minIdx = j;
+            }
+            int tmp = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = tmp;
         }
-        List<Integer> result = quickSort(left);
-        result.addAll(mid);
-        result.addAll(quickSort(right));
-        return result;
+        return arr;
     }
 
     public static void main(String[] args) {
-        List<Integer> data = new ArrayList<>(Arrays.asList(64, 34, 25, 12, 22, 11, 90));
-        System.out.println(quickSort(data));
+        int[] data = {64, 34, 25, 12, 22, 11, 90};
+        System.out.println(Arrays.toString(selectionSort(data)));
     }
 }

@@ -1,18 +1,18 @@
 public class SumOfSquares {
-    public static int computeQuadraticSum(int[] elements) {
-        int accumulator = 0;
-        for (int value : elements) {
-            accumulator += value * value;
+    public static int sumOfSquares(int[] numbers) {
+        int total = 0;
+        for (int num : numbers) {
+            total += num * num;
         }
-        return accumulator;
+        return total;
     }
 
-    public static int handleInput(int[] collection) {
-        return computeQuadraticSum(collection);
+    public static int processList(int[] data) {
+        return sumOfSquares(data);
     }
 
     public static void main(String[] args) {
-        int[] inputData = {1, 2, 3, 4, 5};
-        System.out.println(handleInput(inputData));
+        int[] myList = {1, 2, 3, 4, 5};
+        System.out.println(processList(myList));
     }
 }

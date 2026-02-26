@@ -1,14 +1,15 @@
 #include <stdio.h>
 
+int binary_search_rec(int *arr, int lo, int hi, int target) {
+    if (lo > hi) return -1;
+    int mid = lo + (hi - lo) / 2;
+    if (arr[mid] == target) return mid;
+    if (arr[mid] < target) return binary_search_rec(arr, mid + 1, hi, target);
+    return binary_search_rec(arr, lo, mid - 1, target);
+}
+
 int binary_search(int *arr, int len, int target) {
-    int lo = 0, hi = len - 1;
-    while (lo <= hi) {
-        int mid = (lo + hi) / 2;
-        if (arr[mid] == target) return mid;
-        if (arr[mid] < target) lo = mid + 1;
-        else hi = mid - 1;
-    }
-    return -1;
+    return binary_search_rec(arr, 0, len - 1, target);
 }
 
 int main() {

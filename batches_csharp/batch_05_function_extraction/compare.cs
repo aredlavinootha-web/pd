@@ -1,11 +1,14 @@
 using System;
 
 class Palindrome {
+    static string Normalize(string s) => s.ToLower().Replace(" ", "");
+    static bool CharsMatch(string s, int l, int r) => s[l] == s[r];
+
     static bool IsPalindrome(string s) {
-        s = s.ToLower().Replace(" ", "");
+        s = Normalize(s);
         int left = 0, right = s.Length - 1;
         while (left < right) {
-            if (s[left] != s[right]) return false;
+            if (!CharsMatch(s, left, right)) return false;
             left++; right--;
         }
         return true;

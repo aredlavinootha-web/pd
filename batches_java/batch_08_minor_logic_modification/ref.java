@@ -1,6 +1,6 @@
 public class MaxOfTwo {
     public static int maxOfTwo(int a, int b) {
-        if (b <= a) return a;
+        if (a > b) return a;
         return b;
     }
 

@@ -6,7 +6,7 @@ using namespace std;
 
 string transform(const string& s) {
     string result = s;
-    for (char& c : result) c = toupper(c);
+    for (char& c : result) c = tolower(c);
     return result;
 }
 

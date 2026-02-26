@@ -1,8 +1,16 @@
+function normalize(s) {
+    return s.toLowerCase().replace(/ /g, '');
+}
+
+function charsMatch(s, left, right) {
+    return s[left] === s[right];
+}
+
 function isPalindrome(s) {
-    s = s.toLowerCase().replace(/ /g, '');
+    s = normalize(s);
     let left = 0, right = s.length - 1;
     while (left < right) {
-        if (s[left] !== s[right]) return false;
+        if (!charsMatch(s, left, right)) return false;
         left++; right--;
     }
     return true;

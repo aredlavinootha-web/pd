@@ -1,27 +1,18 @@
 #include <stdio.h>
 
-void swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }
-
-int partition(int *arr, int lo, int hi) {
-    int pivot = arr[hi], i = lo - 1;
-    for (int j = lo; j < hi; j++) {
-        if (arr[j] <= pivot) { i++; swap(&arr[i], &arr[j]); }
-    }
-    swap(&arr[i + 1], &arr[hi]);
-    return i + 1;
-}
-
-void quicksort(int *arr, int lo, int hi) {
-    if (lo < hi) {
-        int p = partition(arr, lo, hi);
-        quicksort(arr, lo, p - 1);
-        quicksort(arr, p + 1, hi);
+void selection_sort(int *arr, int len) {
+    for (int i = 0; i < len; i++) {
+        int min_idx = i;
+        for (int j = i + 1; j < len; j++) {
+            if (arr[j] < arr[min_idx]) min_idx = j;
+        }
+        int tmp = arr[i]; arr[i] = arr[min_idx]; arr[min_idx] = tmp;
     }
 }
 
 int main() {
     int data[] = {64, 34, 25, 12, 22, 11, 90};
-    quicksort(data, 0, 6);
+    selection_sort(data, 7);
     for (int i = 0; i < 7; i++) printf("%d ", data[i]);
     printf("\n");
     return 0;

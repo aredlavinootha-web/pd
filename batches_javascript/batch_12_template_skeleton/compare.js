@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function transform(data) {
-    return data.toUpperCase();
+    return data.toLowerCase();
 }
 
 function main(inputPath, outputPath) {

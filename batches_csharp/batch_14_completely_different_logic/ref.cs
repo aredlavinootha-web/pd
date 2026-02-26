@@ -1,22 +1,18 @@
 using System;
-using System.Collections.Generic;
 
-class QuickSort {
-    static List<int> Sort(List<int> arr) {
-        if (arr.Count <= 1) return arr;
-        int pivot = arr[arr.Count / 2];
-        var left = new List<int>(); var mid = new List<int>(); var right = new List<int>();
-        foreach (int x in arr) {
-            if (x < pivot) left.Add(x);
-            else if (x == pivot) mid.Add(x);
-            else right.Add(x);
+class SelectionSort {
+    static void Sort(int[] arr) {
+        for (int i = 0; i < arr.Length; i++) {
+            int minIdx = i;
+            for (int j = i + 1; j < arr.Length; j++)
+                if (arr[j] < arr[minIdx]) minIdx = j;
+            int tmp = arr[i]; arr[i] = arr[minIdx]; arr[minIdx] = tmp;
         }
-        var result = Sort(left); result.AddRange(mid); result.AddRange(Sort(right));
-        return result;
     }
 
     static void Main() {
-        var data = new List<int> {64, 34, 25, 12, 22, 11, 90};
-        Console.WriteLine(string.Join(", ", Sort(data)));
+        int[] data = {64, 34, 25, 12, 22, 11, 90};
+        Sort(data);
+        Console.WriteLine(string.Join(", ", data));
     }
 }

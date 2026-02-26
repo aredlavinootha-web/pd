@@ -1,14 +1,14 @@
-function computeQuadraticSum(elements) {
-    let accumulator = 0;
-    for (const value of elements) {
-        accumulator += value * value;
+function sumOfSquares(numbers) {
+    let total = 0;
+    for (const num of numbers) {
+        total += num * num;
     }
-    return accumulator;
+    return total;
 }
 
-function handleInput(collection) {
-    return computeQuadraticSum(collection);
+function processList(data) {
+    return sumOfSquares(data);
 }
 
-const inputData = [1, 2, 3, 4, 5];
-console.log(handleInput(inputData));
+const myList = [1, 2, 3, 4, 5];
+console.log(processList(myList));

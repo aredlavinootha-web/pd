@@ -2,7 +2,7 @@ using System;
 
 class MaxOfTwo {
     static int Max(int a, int b) {
-        if (a > b) return a;
+        if (b <= a) return a;
         return b;
     }
 

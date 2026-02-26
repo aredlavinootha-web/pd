@@ -2,20 +2,20 @@
 #include <vector>
 using namespace std;
 
-int sumOfSquares(const vector<int>& numbers) {
-    int total = 0;
-    for (int num : numbers) {
-        total += num * num;
+int computeQuadraticSum(const vector<int>& elements) {
+    int accumulator = 0;
+    for (int value : elements) {
+        accumulator += value * value;
     }
-    return total;
+    return accumulator;
 }
 
-int processList(const vector<int>& data) {
-    return sumOfSquares(data);
+int handleInput(const vector<int>& collection) {
+    return computeQuadraticSum(collection);
 }
 
 int main() {
-    vector<int> myList = {1, 2, 3, 4, 5};
-    cout << processList(myList) << endl;
+    vector<int> inputData = {1, 2, 3, 4, 5};
+    cout << handleInput(inputData) << endl;
     return 0;
 }

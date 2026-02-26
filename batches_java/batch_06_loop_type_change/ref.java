@@ -1,10 +1,8 @@
 public class SumList {
     public static int sumList(int[] nums) {
         int total = 0;
-        int i = 0;
-        while (i < nums.length) {
-            total += nums[i];
-            i++;
+        for (int n : nums) {
+            total += n;
         }
         return total;
     }

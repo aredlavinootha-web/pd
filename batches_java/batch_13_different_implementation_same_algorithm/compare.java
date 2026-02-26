@@ -1,13 +1,14 @@
 public class BinarySearch {
+    private static int binarySearchRec(int[] arr, int lo, int hi, int target) {
+        if (lo > hi) return -1;
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) return binarySearchRec(arr, mid + 1, hi, target);
+        return binarySearchRec(arr, lo, mid - 1, target);
+    }
+
     public static int binarySearch(int[] arr, int target) {
-        int lo = 0, hi = arr.length - 1;
-        while (lo <= hi) {
-            int mid = (lo + hi) / 2;
-            if (arr[mid] == target) return mid;
-            if (arr[mid] < target) lo = mid + 1;
-            else hi = mid - 1;
-        }
-        return -1;
+        return binarySearchRec(arr, 0, arr.length - 1, target);
     }
 
     public static void main(String[] args) {

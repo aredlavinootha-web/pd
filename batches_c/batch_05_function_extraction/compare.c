@@ -2,16 +2,23 @@
 #include <string.h>
 #include <ctype.h>
 
-int is_palindrome(char *s) {
-    int n = strlen(s);
-    char tmp[256]; int j = 0;
-    for (int i = 0; i < n; i++) {
-        if (s[i] != ' ') tmp[j++] = tolower(s[i]);
+void normalize(char *s) {
+    int j = 0;
+    for (int i = 0; s[i]; i++) {
+        if (s[i] != ' ') s[j++] = tolower(s[i]);
     }
-    tmp[j] = '\0';
-    int left = 0, right = j - 1;
+    s[j] = '\0';
+}
+
+int chars_match(const char *s, int l, int r) {
+    return s[l] == s[r];
+}
+
+int is_palindrome(char *s) {
+    normalize(s);
+    int left = 0, right = strlen(s) - 1;
     while (left < right) {
-        if (tmp[left] != tmp[right]) return 0;
+        if (!chars_match(s, left, right)) return 0;
         left++; right--;
     }
     return 1;

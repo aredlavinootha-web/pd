@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 int max_of_two(int a, int b) {
-    if (a > b) return a;
+    if (b <= a) return a;
     return b;
 }
 

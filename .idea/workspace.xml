@@ -4,51 +4,125 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="support tree-sitter ast based comparision for all languages.">
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="support c in copydetect and test batches for diff languages">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/compare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_01_exact_copy/setup_batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_02_variable_renaming/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_02_variable_renaming/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_02_variable_renaming/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_02_variable_renaming/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_03_whitespace_formatting/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_03_whitespace_formatting/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_03_whitespace_formatting/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_03_whitespace_formatting/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_04_comment_addition/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_04_comment_addition/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_04_comment_addition/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_04_comment_addition/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_05_function_extraction/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_05_function_extraction/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_05_function_extraction/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_05_function_extraction/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_06_loop_type_change/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_06_loop_type_change/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_06_loop_type_change/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_06_loop_type_change/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_07_recursive_iterative/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_07_recursive_iterative/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_07_recursive_iterative/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_07_recursive_iterative/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_08_minor_logic_modification/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_08_minor_logic_modification/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_08_minor_logic_modification/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_08_minor_logic_modification/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_09_dead_code_insertion/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_09_dead_code_insertion/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_09_dead_code_insertion/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_09_dead_code_insertion/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_11_partial_copy/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_11_partial_copy/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_11_partial_copy/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_11_partial_copy/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_12_template_skeleton/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_12_template_skeleton/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_12_template_skeleton/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_12_template_skeleton/ref.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_13_different_implementation_same_algorithm/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_13_different_implementation_same_algorithm/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/compare.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/ref.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/ref.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_02_variable_renaming/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_03_whitespace_formatting/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_04_comment_addition/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_05_function_extraction/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_06_loop_type_change/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_07_recursive_iterative/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_08_minor_logic_modification/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_09_dead_code_insertion/setup_batch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/compare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_10_code_reordering/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_11_partial_copy/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_12_template_skeleton/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/compare.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_13_different_implementation_same_algorithm/setup_batch.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/compare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/compare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/ref.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/ref.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/setup_batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/batches_cpp/batch_14_completely_different_logic/setup_batch.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_02_variable_renaming/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_02_variable_renaming/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_02_variable_renaming/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_02_variable_renaming/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_03_whitespace_formatting/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_03_whitespace_formatting/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_03_whitespace_formatting/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_03_whitespace_formatting/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_04_comment_addition/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_04_comment_addition/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_04_comment_addition/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_04_comment_addition/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_05_function_extraction/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_05_function_extraction/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_05_function_extraction/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_05_function_extraction/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_06_loop_type_change/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_06_loop_type_change/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_06_loop_type_change/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_06_loop_type_change/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_07_recursive_iterative/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_07_recursive_iterative/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_07_recursive_iterative/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_07_recursive_iterative/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_08_minor_logic_modification/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_08_minor_logic_modification/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_08_minor_logic_modification/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_08_minor_logic_modification/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_09_dead_code_insertion/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_09_dead_code_insertion/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_09_dead_code_insertion/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_09_dead_code_insertion/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_11_partial_copy/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_11_partial_copy/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_11_partial_copy/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_11_partial_copy/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_12_template_skeleton/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_12_template_skeleton/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_12_template_skeleton/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_12_template_skeleton/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_13_different_implementation_same_algorithm/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_13_different_implementation_same_algorithm/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_14_completely_different_logic/compare.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_14_completely_different_logic/compare.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_csharp/batch_14_completely_different_logic/ref.cs" beforeDir="false" afterPath="$PROJECT_DIR$/batches_csharp/batch_14_completely_different_logic/ref.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_02_variable_renaming/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_02_variable_renaming/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_02_variable_renaming/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_02_variable_renaming/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_03_whitespace_formatting/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_03_whitespace_formatting/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_03_whitespace_formatting/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_03_whitespace_formatting/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_04_comment_addition/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_04_comment_addition/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_04_comment_addition/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_04_comment_addition/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_05_function_extraction/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_05_function_extraction/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_05_function_extraction/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_05_function_extraction/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_06_loop_type_change/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_06_loop_type_change/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_06_loop_type_change/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_06_loop_type_change/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_07_recursive_iterative/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_07_recursive_iterative/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_07_recursive_iterative/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_07_recursive_iterative/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_08_minor_logic_modification/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_08_minor_logic_modification/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_08_minor_logic_modification/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_08_minor_logic_modification/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_09_dead_code_insertion/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_09_dead_code_insertion/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_09_dead_code_insertion/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_09_dead_code_insertion/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_11_partial_copy/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_11_partial_copy/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_11_partial_copy/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_11_partial_copy/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_12_template_skeleton/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_12_template_skeleton/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_12_template_skeleton/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_12_template_skeleton/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_13_different_implementation_same_algorithm/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_13_different_implementation_same_algorithm/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_13_different_implementation_same_algorithm/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_13_different_implementation_same_algorithm/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_14_completely_different_logic/compare.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_14_completely_different_logic/compare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_java/batch_14_completely_different_logic/ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/batches_java/batch_14_completely_different_logic/ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_02_variable_renaming/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_02_variable_renaming/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_02_variable_renaming/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_02_variable_renaming/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_03_whitespace_formatting/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_03_whitespace_formatting/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_03_whitespace_formatting/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_03_whitespace_formatting/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_04_comment_addition/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_04_comment_addition/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_04_comment_addition/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_04_comment_addition/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_05_function_extraction/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_05_function_extraction/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_05_function_extraction/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_05_function_extraction/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_06_loop_type_change/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_06_loop_type_change/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_06_loop_type_change/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_06_loop_type_change/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_07_recursive_iterative/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_07_recursive_iterative/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_07_recursive_iterative/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_07_recursive_iterative/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_08_minor_logic_modification/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_08_minor_logic_modification/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_08_minor_logic_modification/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_08_minor_logic_modification/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_09_dead_code_insertion/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_09_dead_code_insertion/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_09_dead_code_insertion/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_09_dead_code_insertion/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_11_partial_copy/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_11_partial_copy/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_11_partial_copy/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_11_partial_copy/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_12_template_skeleton/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_12_template_skeleton/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_12_template_skeleton/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_12_template_skeleton/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_13_different_implementation_same_algorithm/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_13_different_implementation_same_algorithm/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_13_different_implementation_same_algorithm/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_13_different_implementation_same_algorithm/ref.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_14_completely_different_logic/compare.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_14_completely_different_logic/compare.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/batches_javascript/batch_14_completely_different_logic/ref.js" beforeDir="false" afterPath="$PROJECT_DIR$/batches_javascript/batch_14_completely_different_logic/ref.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +201,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772084581018</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="support c in copydetect and test batches for diff languages">
+      <option name="closed" value="true" />
+      <created>1772099628044</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1772099628044</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -145,6 +227,7 @@
     <MESSAGE value="add end point api/check" />
     <MESSAGE value="." />
     <MESSAGE value="support tree-sitter ast based comparision for all languages." />
-    <option name="LAST_COMMIT_MESSAGE" value="support tree-sitter ast based comparision for all languages." />
+    <MESSAGE value="support c in copydetect and test batches for diff languages" />
+    <option name="LAST_COMMIT_MESSAGE" value="support c in copydetect and test batches for diff languages" />
   </component>
 </project>

@@ -1,8 +1,8 @@
 #include <stdio.h>
 
 int sum_list(int *nums, int len) {
-    int total = 0, i = 0;
-    while (i < len) { total += nums[i]; i++; }
+    int total = 0;
+    for (int i = 0; i < len; i++) { total += nums[i]; }
     return total;
 }
 

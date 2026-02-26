@@ -2,9 +2,8 @@ using System;
 
 class Factorial {
     static int Compute(int n) {
-        int result = 1;
-        for (int i = 2; i <= n; i++) result *= i;
-        return result;
+        if (n <= 1) return 1;
+        return n * Compute(n - 1);
     }
 
     static void Main() {

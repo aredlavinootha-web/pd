@@ -1,11 +1,13 @@
-function quickSort(arr) {
-    if (arr.length <= 1) return arr;
-    const pivot = arr[Math.floor(arr.length / 2)];
-    const left = arr.filter(x => x < pivot);
-    const mid = arr.filter(x => x === pivot);
-    const right = arr.filter(x => x > pivot);
-    return [...quickSort(left), ...mid, ...quickSort(right)];
+function selectionSort(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let minIdx = i;
+        for (let j = i + 1; j < arr.length; j++) {
+            if (arr[j] < arr[minIdx]) minIdx = j;
+        }
+        [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+    }
+    return arr;
 }
 
 const data = [64, 34, 25, 12, 22, 11, 90];
-console.log(quickSort(data));
+console.log(selectionSort([...data]));

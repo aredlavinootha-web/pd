@@ -1,17 +1,9 @@
 public class Palindrome {
-    private static String normalize(String s) {
-        return s.toLowerCase().replace(" ", "");
-    }
-
-    private static boolean charsMatch(String s, int left, int right) {
-        return s.charAt(left) == s.charAt(right);
-    }
-
     public static boolean isPalindrome(String s) {
-        s = normalize(s);
+        s = s.toLowerCase().replace(" ", "");
         int left = 0, right = s.length() - 1;
         while (left < right) {
-            if (!charsMatch(s, left, right)) return false;
+            if (s.charAt(left) != s.charAt(right)) return false;
             left++;
             right--;
         }

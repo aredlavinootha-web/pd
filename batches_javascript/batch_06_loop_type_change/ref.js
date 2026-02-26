@@ -1,6 +1,6 @@
 function sumList(nums) {
-    let total = 0, i = 0;
-    while (i < nums.length) { total += nums[i]; i++; }
+    let total = 0;
+    for (const n of nums) total += n;
     return total;
 }
 
