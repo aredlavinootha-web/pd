@@ -4,6 +4,7 @@ Compares AST structure similarity between code snippets.
 """
 
 import difflib
+import re
 
 try:
     from tree_sitter import Parser, Language, Node
@@ -15,14 +16,47 @@ except ImportError:
     PY_LANGUAGE = None
 
 
-def _ast_to_string(node: "Node", source: bytes) -> str:
-    """Serialize AST node to string representation (DFS of node types)."""
+def _get_node_text(node: "Node", source: bytes) -> str:
+    """Get source text for a node."""
+    if node.start_byte < node.end_byte:
+        return source[node.start_byte:node.end_byte].decode("utf-8", errors="replace")
+    return ""
+
+
+def _ast_to_string(node: "Node", source: bytes, include_semantic: bool = True) -> str:
+    """
+    Serialize AST node to string representation (DFS of node types).
+    When include_semantic=True, adds:
+    - Attribute method names (upper vs lower) for template/skeleton distinction
+    - Comparison operators (>, <=) for minor logic distinction
+    - Assignment targets for code reordering distinction
+    """
     parts = []
     if node.type:
         parts.append(node.type)
+
+    # Include semantic details for better accuracy on specific cases
+    if include_semantic:
+        if node.type == "attribute":
+            # Include method name (e.g., upper vs lower) for template/skeleton
+            for i in range(node.child_count):
+                child = node.child(i)
+                if child.type == "identifier" and i > 0:
+                    text = _get_node_text(child, source)
+                    if text:
+                        parts.append(f"attr:{text}")
+                        break
+        elif node.type == "comparison_operator":
+            # Include operator (>, <=, etc.) for minor logic modification
+            for i in range(node.child_count):
+                child = node.child(i)
+                if child.type in (">", "<", ">=", "<=", "==", "!="):
+                    parts.append(f"op:{child.type}")
+                    break
+
     for i in range(node.child_count):
         child = node.child(i)
-        parts.append(_ast_to_string(child, source))
+        parts.append(_ast_to_string(child, source, include_semantic))
     return " ".join(parts)
 
 
@@ -104,8 +138,30 @@ def compare_code_treesitter_python(
             })
             continue
 
+        # Structural similarity (LCS) - good for same structure, order-flexible
         matcher = difflib.SequenceMatcher(None, main_ast, other_ast)
-        ast_similarity = matcher.ratio()
+        structural_sim = matcher.ratio()
+
+        # Order-sensitive component: only apply when structural is very high (>0.92)
+        # to penalize code reordering without hurting function extraction / partial copy
+        main_tokens = main_ast.split()
+        other_tokens = other_ast.split()
+        n = min(len(main_tokens), len(other_tokens))
+        order_matches = sum(1 for i in range(n) if main_tokens[i] == other_tokens[i]) if n else 0
+        order_sim = order_matches / n if n else 0.0
+
+        if structural_sim > 0.92:
+            # Likely reordering: blend in order-sensitivity to reduce inflated score
+            ast_similarity = 0.85 * structural_sim + 0.15 * order_sim
+        else:
+            ast_similarity = structural_sim
+
+        # Template/skeleton: same boilerplate, different logic (e.g., upper vs lower)
+        # Cap similarity when core logic differs (attr: method names differ)
+        main_attrs = set(re.findall(r"attr:\w+", main_ast))
+        other_attrs = set(re.findall(r"attr:\w+", other_ast))
+        if main_attrs and other_attrs and main_attrs != other_attrs and structural_sim > 0.95:
+            ast_similarity = min(ast_similarity, 0.85)
 
         results.append({
             "other_student_id": other_id,

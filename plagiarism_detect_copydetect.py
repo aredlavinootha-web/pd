@@ -22,8 +22,9 @@ def compare_code_copydetect(
     main_code: str,
     other_students: list[dict],
     language: str = "python",
-    k: int = 10,
+    k: int = 8,
     win_size: int = 1,
+    boilerplate_code: str | None = None,
 ) -> dict:
     """
     Compare main student code with all other students using copydetect.
@@ -33,8 +34,9 @@ def compare_code_copydetect(
         main_code: Code content of the main student
         other_students: List of dicts with keys 'id' and 'code'
         language: Programming language (python, cpp, etc.)
-        k: K-gram length for fingerprinting
+        k: K-gram length for fingerprinting (default 8; smaller improves function extraction)
         win_size: Window size for winnowing
+        boilerplate_code: Optional code to exclude as boilerplate (e.g., template/skeleton)
 
     Returns:
         Response dict with tool name and comparison results
@@ -50,9 +52,21 @@ def compare_code_copydetect(
     ext = _get_file_extension(language)
     main_filename = f"main.{ext}"
 
+    boilerplate_hashes = []
+    if boilerplate_code and boilerplate_code.strip():
+        try:
+            bp_fp = copydetect.CodeFingerprint(
+                f"boilerplate.{ext}", k, win_size, filter=True, language=language,
+                fp=io.StringIO(boilerplate_code.strip()),
+            )
+            boilerplate_hashes = list(getattr(bp_fp, "hashes", []))
+        except Exception:
+            pass
+
     try:
         main_fp = copydetect.CodeFingerprint(
-            main_filename, k, win_size, filter=True, language=language, fp=io.StringIO(main_code)
+            main_filename, k, win_size, filter=True, language=language, fp=io.StringIO(main_code),
+            boilerplate=boilerplate_hashes,
         )
     except Exception as e:
         return {
@@ -81,7 +95,8 @@ def compare_code_copydetect(
         try:
             other_filename = f"{other_id}.{ext}"
             other_fp = copydetect.CodeFingerprint(
-                other_filename, k, win_size, filter=True, language=language, fp=io.StringIO(other_code)
+                other_filename, k, win_size, filter=True, language=language, fp=io.StringIO(other_code),
+                boilerplate=boilerplate_hashes,
             )
             token_overlap, similarities, slices = copydetect.compare_files(main_fp, other_fp)
 
