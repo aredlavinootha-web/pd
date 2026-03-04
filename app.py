@@ -2,7 +2,12 @@
 Plagiarism Detector - Deployable Flask application with basic UI.
 """
 
+import json
+import logging
+
 from flask import Flask, request, render_template_string, jsonify
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 from plagiarism_detect_copydetect import compare_code_copydetect
 from plagiarism_detect_difflib import compare_code_difflib
@@ -454,6 +459,8 @@ def api_detect():
         if not data:
             return jsonify({"error": "Invalid or missing JSON body"}), 400
 
+        logging.info("REQUEST /api/detect: %s", json.dumps(data, default=str))
+
         main_student = data.get("main_student")
         if not main_student:
             return jsonify({"error": "Missing 'main_student' with 'id' and 'code'"}), 400
@@ -463,9 +470,13 @@ def api_detect():
         other_students = data.get("other_students", [])
         language = data.get("language", "python")
         tools = data.get("tools", ["copydetect", "difflib", "treesitter_python", "treesitter_cpp"])
+        max_results = data.get("max_results")
 
         if not isinstance(other_students, list):
             return jsonify({"error": "'other_students' must be a list of {id, code}"}), 400
+
+        if max_results is not None and not isinstance(max_results, int):
+            return jsonify({"error": "'max_results' must be an integer"}), 400
 
         comparisons = []
         tool_map = {
@@ -497,11 +508,18 @@ def api_detect():
             avg = round(sum(scores) / len(scores), 4) if scores else 0.0
             summary.append({"other_student_id": oid, "avg_similarity": avg, "tool_count": len(scores)})
 
-        return jsonify({
+        # Sort summary by avg_similarity descending and apply max_results if provided
+        summary.sort(key=lambda x: x["avg_similarity"], reverse=True)
+        if max_results is not None:
+            summary = summary[:max_results]
+
+        response_body = {
             "main_student_id": main_id,
             "summary": summary,
             "comparisons": comparisons,
-        })
+        }
+        logging.info("RESPONSE /api/detect: %s", json.dumps(response_body, default=str))
+        return jsonify(response_body)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

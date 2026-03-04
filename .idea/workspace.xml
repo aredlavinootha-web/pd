@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="test batches updated">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/compare.c" beforeDir="false" afterPath="$PROJECT_DIR$/batches_c/batch_14_completely_different_logic/compare.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_c.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_c.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_cpp.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_cpp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_csharp.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_csharp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_java.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_java.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_python.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_python.py" afterDir="false" />
-    </list>
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="tree sitter and copydetect logics enhanced" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -107,7 +98,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772102283622</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="tree sitter and copydetect logics enhanced">
+      <option name="closed" value="true" />
+      <created>1772526875678</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1772526875678</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -127,6 +126,7 @@
     <MESSAGE value="support tree-sitter ast based comparision for all languages." />
     <MESSAGE value="support c in copydetect and test batches for diff languages" />
     <MESSAGE value="test batches updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="test batches updated" />
+    <MESSAGE value="tree sitter and copydetect logics enhanced" />
+    <option name="LAST_COMMIT_MESSAGE" value="tree sitter and copydetect logics enhanced" />
   </component>
 </project>
