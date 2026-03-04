@@ -475,8 +475,8 @@ def api_detect():
         if not isinstance(other_students, list):
             return jsonify({"error": "'other_students' must be a list of {id, code}"}), 400
 
-        if max_results is not None and not isinstance(max_results, int):
-            return jsonify({"error": "'max_results' must be an integer"}), 400
+        if max_results is not None and (not isinstance(max_results, int) or max_results < 0):
+            return jsonify({"error": "'max_results' must be a non-negative integer"}), 400
 
         comparisons = []
         tool_map = {
@@ -508,10 +508,17 @@ def api_detect():
             avg = round(sum(scores) / len(scores), 4) if scores else 0.0
             summary.append({"other_student_id": oid, "avg_similarity": avg, "tool_count": len(scores)})
 
-        # Sort summary by avg_similarity descending and apply max_results if provided
+        # Sort summary by avg_similarity descending
         summary.sort(key=lambda x: x["avg_similarity"], reverse=True)
-        if max_results is not None:
+
+        # If max_results is set, trim to top N matches everywhere (summary + each tool's results)
+        top_n_ids = None
+        if max_results is not None and max_results >= 0:
             summary = summary[:max_results]
+            top_n_ids = {s["other_student_id"] for s in summary}
+            for comp in comparisons:
+                if comp.get("results"):
+                    comp["results"] = [r for r in comp["results"] if r.get("other_student_id") in top_n_ids]
 
         response_body = {
             "main_student_id": main_id,
