@@ -188,3 +188,107 @@ def compare_code_copydetect(
         "main_student_id": main_student_id,
         "results": results,
     }
+
+
+def compare_all_pairs_copydetect(
+    students: list[dict],
+    language: str = "python",
+    k: int = 8,
+    win_size: int = 1,
+    top_n: int | None = None,
+) -> dict:
+    """
+    Compare every student with every other student using copydetect.
+
+    Args:
+        students: List of dicts with keys 'id' and 'code'
+        language: Programming language
+        k: K-gram length for fingerprinting
+        win_size: Window size for winnowing
+        top_n: If set, include top N matches per student in the response
+
+    Returns:
+        {
+            "available": bool,
+            "pairs": [{ "student_a", "student_b", "similarity", ... }],
+            "comparisons_count": int,
+            "students_count": int,
+            "top_matches_per_student": { student_id: [...] } (if top_n set)
+        }
+    """
+    if copydetect is None:
+        return {
+            "available": False,
+            "error": "copydetect package not installed. Run: pip install copydetect",
+            "pairs": [],
+            "comparisons_count": 0,
+            "students_count": len(students),
+        }
+
+    ext = _get_file_extension(language)
+
+    fingerprints: dict[str, object] = {}
+    for student in students:
+        sid = student.get("id", "unknown")
+        code = student.get("code", "")
+        if not code.strip():
+            continue
+        try:
+            fp = copydetect.CodeFingerprint(
+                f"{sid}.{ext}", k, win_size, filter=True, language=language,
+                fp=io.StringIO(code),
+            )
+            fingerprints[sid] = fp
+        except Exception:
+            continue
+
+    ids = list(fingerprints.keys())
+    pairs: list[dict] = []
+
+    for i in range(len(ids)):
+        for j in range(i + 1, len(ids)):
+            sid_a, sid_b = ids[i], ids[j]
+            try:
+                token_overlap, similarities, slices = copydetect.compare_files(
+                    fingerprints[sid_a], fingerprints[sid_b],
+                )
+                sim_a, sim_b = similarities[0], similarities[1]
+                avg_sim = (sim_a + sim_b) / 2 if (sim_a or sim_b) else 0.0
+                pairs.append({
+                    "student_a": sid_a,
+                    "student_b": sid_b,
+                    "similarity": round(avg_sim, 4),
+                    "similarity_a": round(sim_a, 4),
+                    "similarity_b": round(sim_b, 4),
+                    "token_overlap": int(token_overlap),
+                })
+            except Exception:
+                pairs.append({
+                    "student_a": sid_a,
+                    "student_b": sid_b,
+                    "similarity": 0.0,
+                    "similarity_a": 0.0,
+                    "similarity_b": 0.0,
+                    "token_overlap": 0,
+                })
+
+    pairs.sort(key=lambda p: p["similarity"], reverse=True)
+
+    result: dict = {
+        "available": True,
+        "pairs": pairs,
+        "comparisons_count": len(pairs),
+        "students_count": len(students),
+    }
+
+    if top_n is not None and top_n > 0:
+        top_matches: dict[str, list] = {sid: [] for sid in ids}
+        for p in pairs:
+            a, b = p["student_a"], p["student_b"]
+            if len(top_matches[a]) < top_n:
+                top_matches[a].append({"matched_id": b, "similarity": p["similarity"]})
+            if len(top_matches[b]) < top_n:
+                top_matches[b].append({"matched_id": a, "similarity": p["similarity"]})
+        result["top_matches_per_student"] = top_matches
+
+    return result
