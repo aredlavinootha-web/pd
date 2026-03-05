@@ -4,16 +4,233 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="fix top n results trimming.">
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="fix some issue">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vector_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/vector_db.py" afterDir="false" />
+    </list>
+    <list id="13c234f5-e02c-4f4d-9134-1fb3dfdc0609" name="Changes1" comment="">
+      <change afterPath="$PROJECT_DIR$/batches/CASES_EXPLANATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/batches_c.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/batches_cpp.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/batches_csharp.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/batches_java.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/batches_javascript.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_benchmark_2gb_docker.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data.zip" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_001.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_002.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_003.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_004.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_005.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_006.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_007.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_008.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_009.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_010.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_011.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_012.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_013.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_014.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_015.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_016.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_017.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_018.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_019.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_020.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_021.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_022.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_023.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_024.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_025.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_026.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_027.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_028.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_029.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_030.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_031.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_032.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_033.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_034.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_035.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_036.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_037.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_038.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_039.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_040.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_041.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_042.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_043.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_044.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_045.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_046.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_047.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_048.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_049.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_050.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_051.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_052.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_053.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_054.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_055.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_056.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_057.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_058.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_059.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_060.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_061.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_062.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_063.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_064.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_065.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_066.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_067.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_068.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_069.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_070.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_071.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_072.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_073.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_074.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_075.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_076.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_077.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_078.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_079.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_080.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_081.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_082.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_083.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_084.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_085.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_086.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_087.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_088.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_089.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_090.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_091.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_092.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_093.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_094.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_095.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_096.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_097.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_098.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_099.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_100.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_101.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_102.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_103.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_104.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_105.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_106.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_107.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_108.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_109.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_110.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_111.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_112.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_113.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_114.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_115.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_116.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_117.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_118.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_119.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_120.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_121.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_122.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_123.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_124.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_125.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_126.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_127.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_128.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_129.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_130.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_131.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_132.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_133.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_134.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_135.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_136.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_137.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_138.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_139.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_140.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_141.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_142.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_143.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_144.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_145.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_146.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_147.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_148.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_149.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_150.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_151.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_152.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_153.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_154.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_155.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_156.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_157.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_158.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_159.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_160.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_161.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_162.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_163.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_164.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_165.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_166.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_167.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_168.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_169.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_170.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_171.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_172.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_173.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_174.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_175.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_176.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_177.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_178.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_179.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_180.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_181.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_182.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_183.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_184.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_185.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_186.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_187.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_188.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_189.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_190.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_191.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_192.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_193.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_194.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_195.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_196.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_197.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_198.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_199.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/sample_data/student_200.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/virtual_environment/BENCHMARK_2GB_GUIDE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/virtual_environment/benchmark_results.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+      <option value="repository" />
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -127,7 +344,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772620109684</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="converts embeddings logic to python">
+      <option name="closed" value="true" />
+      <created>1772706734067</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1772706734067</updated>
+    </task>
+    <task id="LOCAL-00010" summary="fix some issue">
+      <option name="closed" value="true" />
+      <created>1772707283745</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1772707283745</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -150,6 +383,8 @@
     <MESSAGE value="tree sitter and copydetect logics enhanced" />
     <MESSAGE value="update tree sitter js, log req and res, support max results" />
     <MESSAGE value="fix top n results trimming." />
-    <option name="LAST_COMMIT_MESSAGE" value="fix top n results trimming." />
+    <MESSAGE value="converts embeddings logic to python" />
+    <MESSAGE value="fix some issue" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix some issue" />
   </component>
 </project>

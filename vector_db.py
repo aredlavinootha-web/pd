@@ -4,7 +4,6 @@ Handles vector storage and similarity search using Pinecone cloud vector DB.
 Ported from vectorDb.js.
 """
 
-import os
 import logging
 from datetime import datetime
 
@@ -12,7 +11,8 @@ from pinecone import Pinecone
 
 logger = logging.getLogger(__name__)
 
-INDEX_NAME = os.environ.get("PINECONE_INDEX_NAME", "plagiarism-detector")
+PINECONE_API_KEY = "pcsk_69ch9a_RPQLUArtXyReUKk87f7grMHiBzmz2EBWoqhENNJFufkbCPJ4DWJ9hrfq1DzcDXN"
+INDEX_NAME = "plagiarism-detector"
 EMBEDDING_DIMENSIONS = 1536
 COSINE_SIMILARITY_BASELINE = 0.70
 
@@ -28,13 +28,7 @@ def _calibrate_score(raw_score: float) -> float:
 def _get_pinecone_client() -> Pinecone:
     global _pinecone_client
     if _pinecone_client is None:
-        api_key = os.environ.get("PINECONE_API_KEY", "")
-        if not api_key or api_key == "your_pinecone_api_key_here":
-            raise RuntimeError(
-                "Pinecone API key is not configured. Set PINECONE_API_KEY in your .env file. "
-                "Get your free API key from https://www.pinecone.io/"
-            )
-        _pinecone_client = Pinecone(api_key=api_key)
+        _pinecone_client = Pinecone(api_key=PINECONE_API_KEY)
         logger.info("Pinecone client initialized")
     return _pinecone_client
 
@@ -55,7 +49,7 @@ def initialize_index() -> bool:
 def save_submission(data: dict) -> str:
     global _index
     if _index is None:
-        raise RuntimeError("Pinecone index not initialized. Please configure PINECONE_API_KEY.")
+        raise RuntimeError("Pinecone index not initialized. Please configure PINECONE_API_KEY in .env file.")
 
     submission_id = data["submission_id"]
     student_id = data["student_id"]
@@ -64,8 +58,10 @@ def save_submission(data: dict) -> str:
     code = data["code"]
     embedding = data["embedding"]
     chunks = data.get("chunks", [])
+    language = data.get("language")
 
     normalized_exam_id = str(exam_id).strip() if exam_id and str(exam_id).strip() else ""
+    normalized_language = str(language).strip().lower() if language and str(language).strip() else ""
 
     base_metadata = {
         "type": "submission",
@@ -78,6 +74,8 @@ def save_submission(data: dict) -> str:
     }
     if normalized_exam_id:
         base_metadata["examId"] = normalized_exam_id
+    if normalized_language:
+        base_metadata["language"] = normalized_language
 
     vectors = [
         {
@@ -95,6 +93,8 @@ def save_submission(data: dict) -> str:
     }
     if normalized_exam_id:
         chunk_base["examId"] = normalized_exam_id
+    if normalized_language:
+        chunk_base["language"] = normalized_language
 
     for idx, chunk in enumerate(chunks):
         vectors.append({
@@ -146,12 +146,13 @@ def find_similar_submissions(
         if len(results) >= limit:
             break
         results.append({
-            "id": match["metadata"]["submissionId"],
+            "submission_id": match["metadata"]["submissionId"],
             "student_id": match["metadata"]["studentId"],
             "question_id": match["metadata"]["questionId"],
+            "language": match["metadata"].get("language") or None,
             "code": match["metadata"].get("code", ""),
             "similarity": _calibrate_score(match["score"]),
-            "raw_similarity": match["score"],
+            "rawSimilarity": match["score"],
         })
 
     logger.info(f"Found {len(results)} submissions (raw threshold: {min_similarity})")
@@ -194,10 +195,11 @@ def find_similar_chunks(
             "submission_id": match["metadata"]["submissionId"],
             "student_id": match["metadata"]["studentId"],
             "question_id": match["metadata"]["questionId"],
+            "language": match["metadata"].get("language") or None,
             "chunk_index": match["metadata"].get("chunkIndex"),
             "chunk_text": match["metadata"].get("chunkText", ""),
             "similarity": _calibrate_score(match["score"]),
-            "raw_similarity": match["score"],
+            "rawSimilarity": match["score"],
         })
 
     logger.info(f"Found {len(results)} similar chunks")
@@ -238,7 +240,8 @@ def get_submissions_by_question(
             "id": m["metadata"]["submissionId"],
             "student_id": m["metadata"]["studentId"],
             "question_id": m["metadata"]["questionId"],
-            "exam_id": m["metadata"].get("examId"),
+            "exam_id": m["metadata"].get("examId") or None,
+            "language": m["metadata"].get("language") or None,
             "code": m["metadata"].get("code", ""),
             "created_at": datetime.fromtimestamp(m["metadata"].get("timestamp", 0) / 1000).isoformat(),
         }
@@ -263,9 +266,29 @@ def get_submission(submission_id: str) -> dict | None:
             "id": meta["submissionId"],
             "student_id": meta["studentId"],
             "question_id": meta["questionId"],
+            "language": meta.get("language") or None,
             "code": meta.get("code", ""),
             "created_at": datetime.fromtimestamp(meta.get("timestamp", 0) / 1000).isoformat(),
         }
     except Exception as e:
         logger.error(f"Pinecone fetch error: {e}")
+        return None
+
+
+def get_submission_embedding(submission_id: str) -> list[float] | None:
+    """Get the stored embedding vector for a submission (avoids re-calling OpenAI)."""
+    global _index
+    if _index is None:
+        raise RuntimeError("Pinecone index not initialized. Please configure PINECONE_API_KEY in .env file.")
+
+    try:
+        response = _index.fetch(ids=[f"sub_{submission_id}"])
+        records = response.get("vectors", {})
+        if not records:
+            return None
+
+        record = records[f"sub_{submission_id}"]
+        return record.get("values") or None
+    except Exception as e:
+        logger.error(f"Pinecone fetch embedding error: {e}")
         return None
