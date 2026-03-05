@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="tree sitter and copydetect logics enhanced" />
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="fix top n results trimming.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_copydetect.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -106,7 +110,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772526875678</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="update tree sitter js, log req and res, support max results">
+      <option name="closed" value="true" />
+      <created>1772619419992</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1772619419992</updated>
+    </task>
+    <task id="LOCAL-00008" summary="fix top n results trimming.">
+      <option name="closed" value="true" />
+      <created>1772620109684</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1772620109684</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -127,6 +147,8 @@
     <MESSAGE value="support c in copydetect and test batches for diff languages" />
     <MESSAGE value="test batches updated" />
     <MESSAGE value="tree sitter and copydetect logics enhanced" />
-    <option name="LAST_COMMIT_MESSAGE" value="tree sitter and copydetect logics enhanced" />
+    <MESSAGE value="update tree sitter js, log req and res, support max results" />
+    <MESSAGE value="fix top n results trimming." />
+    <option name="LAST_COMMIT_MESSAGE" value="fix top n results trimming." />
   </component>
 </project>

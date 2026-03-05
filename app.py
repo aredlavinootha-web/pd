@@ -9,7 +9,7 @@ from flask import Flask, request, render_template_string, jsonify
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-from plagiarism_detect_copydetect import compare_code_copydetect
+from plagiarism_detect_copydetect import compare_code_copydetect, compare_all_pairs_copydetect
 from plagiarism_detect_difflib import compare_code_difflib
 from plagiarism_detect_treesitter_python import compare_code_treesitter_python
 from plagiarism_detect_treesitter_cpp import compare_code_treesitter_cpp
@@ -494,38 +494,83 @@ def api_detect():
             if tool in tool_map:
                 comparisons.append(tool_map[tool]())
 
-        # Build per-student summary (avg similarity across tools)
-        other_ids = [o.get("id", "unknown") for o in other_students]
-        summary = []
-        for oid in other_ids:
-            scores = []
-            for comp in comparisons:
-                if comp.get("available") and comp.get("results"):
-                    for r in comp["results"]:
-                        if r.get("other_student_id") == oid and r.get("similarity") is not None:
-                            scores.append(r["similarity"])
-                            break
-            avg = round(sum(scores) / len(scores), 4) if scores else 0.0
-            summary.append({"other_student_id": oid, "avg_similarity": avg, "tool_count": len(scores)})
-
-        # Sort summary by avg_similarity descending
-        summary.sort(key=lambda x: x["avg_similarity"], reverse=True)
-
-        # If max_results is set, trim to top N matches everywhere (summary + each tool's results)
-        top_n_ids = None
+        # If max_results is set, trim each tool's results to top N by similarity
         if max_results is not None and max_results >= 0:
-            summary = summary[:max_results]
-            top_n_ids = {s["other_student_id"] for s in summary}
+            other_ids = [o.get("id", "unknown") for o in other_students]
+            scores_by_oid = {}
+            for oid in other_ids:
+                scores = []
+                for comp in comparisons:
+                    if comp.get("available") and comp.get("results"):
+                        for r in comp["results"]:
+                            if r.get("other_student_id") == oid and r.get("similarity") is not None:
+                                scores.append(r["similarity"])
+                                break
+                avg = sum(scores) / len(scores) if scores else 0.0
+                scores_by_oid[oid] = avg
+            top_n_ids = {
+                oid for oid, _ in sorted(scores_by_oid.items(), key=lambda x: x[1], reverse=True)[:max_results]
+            }
             for comp in comparisons:
                 if comp.get("results"):
                     comp["results"] = [r for r in comp["results"] if r.get("other_student_id") in top_n_ids]
 
         response_body = {
             "main_student_id": main_id,
-            "summary": summary,
             "comparisons": comparisons,
         }
         logging.info("RESPONSE /api/detect: %s", json.dumps(response_body, default=str))
+        return jsonify(response_body)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# All-pairs: compare every student with every other. Request body:
+# { "students": [ { "id": str, "code": str }, ... ], "language": str (optional), "top_n": int (optional) }
+# Response: pairs, top_matches_per_student (if top_n set), comparisons_count, students_count.
+# Rough time for 1000 students (~50-line codes): ~2–6 minutes (fingerprinting + ~500k comparisons).
+
+
+@app.route("/api/detect-all-pairs", methods=["POST"])
+def api_detect_all_pairs():
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"error": "Invalid or missing JSON body"}), 400
+
+        logging.info("REQUEST /api/detect-all-pairs: %s", json.dumps(data, default=str))
+
+        students = data.get("students", [])
+        if not isinstance(students, list):
+            return jsonify({"error": "'students' must be a list of {id, code}"}), 400
+
+        if len(students) < 2:
+            return jsonify({"error": "At least 2 students required for all-pairs comparison"}), 400
+
+        language = data.get("language", "python")
+        top_n = data.get("top_n")
+        if top_n is not None and (not isinstance(top_n, int) or top_n < 0):
+            return jsonify({"error": "'top_n' must be a non-negative integer"}), 400
+
+        result = compare_all_pairs_copydetect(
+            students,
+            language=language,
+            top_n=top_n,
+        )
+
+        response_body = {
+            "pairs": result.get("pairs", []),
+            "comparisons_count": result.get("comparisons_count", 0),
+            "students_count": result.get("students_count", 0),
+        }
+        if result.get("top_matches_per_student") is not None:
+            response_body["top_matches_per_student"] = result["top_matches_per_student"]
+        if not result.get("available"):
+            response_body["error"] = result.get("error", "copydetect unavailable")
+        if result.get("error"):
+            response_body["error"] = result["error"]
+
+        logging.info("RESPONSE /api/detect-all-pairs: %s", json.dumps(response_body, default=str))
         return jsonify(response_body)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
