@@ -1,6 +1,11 @@
 """
 Plagiarism detection using copydetect (winnowing algorithm).
 Compares main student code against other students' code.
+
+JavaScript: Pygments uses Token.Name.Other for JS identifiers; copydetect only
+normalizes Name, Name.Variable, Name.Attribute, so variable/function renames
+gave low similarity. We patch utils.filter_code and detector.filter_code to
+treat Name.Other as V when language is javascript/js.
 """
 
 import io
@@ -9,6 +14,61 @@ try:
     import copydetect
 except ImportError:
     copydetect = None
+
+# JavaScript: Pygments uses Name.Other for JS identifiers; copydetect only normalizes
+# Name, Name.Variable, Name.Attribute — so JS variable/function names stay literal.
+# Patch utils.filter_code and detector.filter_code (detector caches it at import).
+if copydetect is not None:
+    from pygments import lexers, token
+    import pygments.util
+    import numpy as np
+    import copydetect.utils as _cd_utils
+    import copydetect.detector as _cd_detector
+    _orig_filter = _cd_utils.filter_code
+
+    def _filter_js(code, filename, language=None):
+        if language not in ("javascript", "js"):
+            return _orig_filter(code, filename, language)
+        try:
+            lexer = lexers.get_lexer_by_name(language)
+            tokens = lexer.get_tokens(code)
+        except pygments.util.ClassNotFound:
+            return _orig_filter(code, filename, language)
+        out_code, offset, offsets = "", 0, [[0, 0]]
+        vt = {token.Name, token.Name.Variable, token.Name.Attribute, token.Name.Other}
+        for t in tokens:
+            if t[0] in vt:
+                out_code += "V"
+                offsets.append([len(out_code) - 1, offset])
+                offset += len(t[1]) - 1
+            elif t[0] in token.Name.Function:
+                out_code += "F"
+                offsets.append([len(out_code) - 1, offset])
+                offset += len(t[1]) - 1
+            elif t[0] in token.Name.Class:
+                out_code += "O"
+                offsets.append([len(out_code) - 1, len(t[1]) - 1])
+                offset += len(t[1]) - 1
+            elif t[0] == token.Comment.Preproc or t[0] == token.Comment.Hashbang:
+                out_code += "P"
+                offsets.append([len(out_code) - 1, offset])
+                offset += len(t[1]) - 1
+            elif t[0] in token.Text or t[0] in token.Comment:
+                offsets.append([len(out_code) - 1, offset])
+                offset += len(t[1])
+            elif t[0] in token.Literal.String:
+                if t[1] in ("'", '"'):
+                    out_code += '"'
+                else:
+                    out_code += "S"
+                    offsets.append([len(out_code) - 1, offset])
+                    offset += len(t[1]) - 1
+            else:
+                out_code += t[1]
+        return out_code, np.array(offsets)
+
+    _cd_utils.filter_code = _filter_js
+    _cd_detector.filter_code = _filter_js
 
 
 def _get_file_extension(language: str) -> str:

@@ -1,13 +1,20 @@
 """
 Plagiarism Detector - Deployable Flask application with basic UI.
+Combines tool-based detection (copydetect, tree-sitter, difflib) with
+semantic embedding search (OpenAI + Pinecone) and a scoring engine.
 """
 
 import json
+import time
 import logging
+from datetime import datetime
 
 from flask import Flask, request, render_template_string, jsonify
+from dotenv import load_dotenv
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logger = logging.getLogger(__name__)
 
 from plagiarism_detect_copydetect import compare_code_copydetect, compare_all_pairs_copydetect
 from plagiarism_detect_difflib import compare_code_difflib
@@ -17,6 +24,12 @@ from plagiarism_detect_treesitter_java import compare_code_treesitter_java
 from plagiarism_detect_treesitter_c import compare_code_treesitter_c
 from plagiarism_detect_treesitter_csharp import compare_code_treesitter_csharp
 from plagiarism_detect_treesitter_javascript import compare_code_treesitter_javascript
+
+import embeddings
+import chunking
+import vector_db
+import scoring_engine
+import code_normalizer
 
 app = Flask(__name__)
 
@@ -576,7 +589,592 @@ def api_detect_all_pairs():
         return jsonify({"error": str(e)}), 500
 
 
+##############################################################################
+# Semantic / Pinecone routes (ported from PlagDetectBackend Node.js)
+##############################################################################
+
+
+@app.route("/api/health", methods=["GET"])
+def api_health():
+    return jsonify({
+        "status": "ok",
+        "service": "semantic-plagiarism-detector",
+        "model": embeddings.EMBEDDING_MODEL,
+        "timestamp": datetime.utcnow().isoformat(),
+    })
+
+
+@app.route("/api/submit", methods=["POST"])
+def api_submit():
+    """Submit code, generate embeddings, and store in Pinecone."""
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"success": False, "error": "Invalid or missing JSON body"}), 400
+
+        code = data.get("code", "")
+        student_id = (data.get("studentId") or "").strip()
+        question_id = (data.get("questionId") or "").strip()
+        exam_id_raw = data.get("examId")
+        exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
+        language = data.get("language", "javascript")
+        use_normalization = data.get("useNormalization", True)
+        custom_api_key = request.headers.get("X-OpenAI-API-Key")
+
+        if not code or not student_id or not question_id:
+            return jsonify({"success": False, "error": "Missing required fields: code, studentId, questionId"}), 400
+        if not code.strip():
+            return jsonify({"success": False, "error": "Code cannot be empty"}), 400
+
+        submission_id = f"{student_id}_{question_id}_{int(time.time() * 1000)}"
+        logger.info(f"[Submit] Processing {student_id} for question {question_id}")
+
+        whole_code_embedding = embeddings.generate_code_embedding(
+            code, language, custom_api_key, use_normalization,
+        )
+
+        code_chunks = chunking.extract_code_chunks(code, language)
+        chunks_with_embeddings = (
+            embeddings.generate_chunk_embeddings(code_chunks, language, custom_api_key, use_normalization)
+            if code_chunks else []
+        )
+
+        vector_db.save_submission({
+            "submission_id": submission_id,
+            "student_id": student_id,
+            "question_id": question_id,
+            "exam_id": exam_id,
+            "code": code,
+            "embedding": whole_code_embedding,
+            "chunks": chunks_with_embeddings,
+        })
+
+        chunk_stats = chunking.get_chunk_stats(code_chunks)
+        return jsonify({
+            "success": True,
+            "submissionId": submission_id,
+            "chunkCount": len(code_chunks),
+            "chunkStats": chunk_stats,
+            "message": "Submission processed successfully",
+        })
+    except Exception as e:
+        logger.error(f"[Submit Error] {e}")
+        msg = str(e)
+        if "Pinecone" in msg:
+            return jsonify({"success": False, "error": "Vector database not configured. Please set PINECONE_API_KEY in your backend .env file. Get free API key from https://www.pinecone.io/", "errorType": "PINECONE_NOT_CONFIGURED"}), 503
+        if "quota" in msg:
+            return jsonify({"success": False, "error": 'OpenAI API quota exceeded. Please provide a valid API key with available credits using the "OpenAI API Key" field in the frontend.', "errorType": "QUOTA_EXCEEDED"}), 402
+        if "API key" in msg:
+            return jsonify({"success": False, "error": 'Invalid or missing OpenAI API key. Please provide a valid API key using the "OpenAI API Key" field in the frontend.', "errorType": "INVALID_API_KEY"}), 401
+        return jsonify({"success": False, "error": msg}), 500
+
+
+@app.route("/api/submit/bulk", methods=["POST"])
+def api_submit_bulk():
+    """Bulk upload submissions."""
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"success": False, "error": "Invalid or missing JSON body"}), 400
+
+        rows = data.get("submissions", [])
+        use_normalization = data.get("useNormalization", True)
+        custom_api_key = request.headers.get("X-OpenAI-API-Key")
+
+        if not isinstance(rows, list) or len(rows) == 0:
+            return jsonify({"success": False, "error": "Missing or empty 'submissions' array."}), 400
+
+        results = {"success": 0, "failed": 0, "errors": []}
+
+        for i, row in enumerate(rows):
+            exam_id_raw = row.get("exam_id")
+            exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
+            question_id = str(row.get("question_id", "")).strip()
+            student_id = str(row.get("student_id", "")).strip()
+            code = str(row.get("submission", ""))
+            language = str(row.get("language", "javascript")).strip() or "javascript"
+
+            if not question_id or not student_id or not code or len(code.strip()) < 10:
+                results["failed"] += 1
+                results["errors"].append({"row": i + 1, "error": "Missing or invalid fields (code min 10 chars)"})
+                continue
+
+            try:
+                submission_id = f"{student_id}_{question_id}_{int(time.time() * 1000)}_{i}"
+                emb = embeddings.generate_code_embedding(code, language, custom_api_key, use_normalization)
+                code_chunks = chunking.extract_code_chunks(code, language)
+                chunks_emb = (
+                    embeddings.generate_chunk_embeddings(code_chunks, language, custom_api_key, use_normalization)
+                    if code_chunks else []
+                )
+                vector_db.save_submission({
+                    "submission_id": submission_id,
+                    "student_id": student_id,
+                    "question_id": question_id,
+                    "exam_id": exam_id,
+                    "code": code,
+                    "embedding": emb,
+                    "chunks": chunks_emb,
+                })
+                results["success"] += 1
+            except Exception as err:
+                results["failed"] += 1
+                results["errors"].append({"row": i + 1, "error": str(err)})
+
+        return jsonify({
+            "success": True,
+            "total": len(rows),
+            "successCount": results["success"],
+            "failCount": results["failed"],
+            "errors": results["errors"][:50],
+            "message": f"Processed {len(rows)} rows: {results['success']} succeeded, {results['failed']} failed",
+        })
+    except Exception as e:
+        logger.error(f"[Bulk Submit Error] {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+def _run_tool_comparisons(main_id: str, main_code: str, other_students: list[dict], language: str) -> list[dict]:
+    """Run copydetect, difflib, and the appropriate tree-sitter tool directly (no HTTP)."""
+    lang = code_normalizer.resolve_language(language)
+    tools = ["copydetect", "difflib", f"treesitter_{lang}"]
+    tool_map = {
+        "copydetect": lambda: compare_code_copydetect(main_id, main_code, other_students, language),
+        "difflib": lambda: compare_code_difflib(main_id, main_code, other_students),
+        "treesitter_python": lambda: compare_code_treesitter_python(main_id, main_code, other_students),
+        "treesitter_cpp": lambda: compare_code_treesitter_cpp(main_id, main_code, other_students),
+        "treesitter_java": lambda: compare_code_treesitter_java(main_id, main_code, other_students),
+        "treesitter_c": lambda: compare_code_treesitter_c(main_id, main_code, other_students),
+        "treesitter_csharp": lambda: compare_code_treesitter_csharp(main_id, main_code, other_students),
+        "treesitter_javascript": lambda: compare_code_treesitter_javascript(main_id, main_code, other_students),
+    }
+
+    comparisons = []
+    for tool in tools:
+        if tool in tool_map:
+            comparisons.append(tool_map[tool]())
+    return comparisons
+
+
+def _format_external_result(comparisons: list[dict], past_submissions: list[dict], main_student_id: str = "") -> dict:
+    """Format tool comparison results the same way externalPlagiarismService.formatExternalResult did."""
+    student_code_map = {}
+    for sub in past_submissions:
+        sid = sub.get("studentId") or sub.get("student_id") or sub.get("id", "")
+        student_code_map[sid] = sub.get("code", "")
+
+    return {
+        "available": True,
+        "mainStudentId": main_student_id,
+        "summary": [],
+        "comparisons": [
+            {
+                "tool": comp.get("tool", ""),
+                "available": comp.get("available", False),
+                "mainStudentId": comp.get("main_student_id", ""),
+                "results": [
+                    {
+                        "studentId": r.get("other_student_id", ""),
+                        "similarity": r.get("similarity", 0),
+                        "code": student_code_map.get(r.get("other_student_id", ""), ""),
+                        "details": r,
+                    }
+                    for r in comp.get("results", [])
+                ],
+            }
+            for comp in comparisons
+        ],
+    }
+
+
+def _determine_final_decision(
+    local_result: dict,
+    external_result: dict,
+    threshold: float,
+    structural_data: dict,
+) -> dict:
+    """Use scoring engine to produce final plagiarism report (replaces externalPlagiarismService.determineFinalDecision)."""
+    options = {}
+    if structural_data.get("current_code") and structural_data.get("compared_code"):
+        options["current_code"] = structural_data["current_code"]
+        options["compared_code"] = structural_data["compared_code"]
+        options["language"] = structural_data.get("language", "python")
+
+    report = scoring_engine.generate_plagiarism_report(local_result, external_result, threshold, options)
+
+    tool_results = {}
+    for comp in (external_result or {}).get("comparisons", []):
+        if not comp.get("available") or not comp.get("results"):
+            continue
+        max_sim = max((r.get("similarity", 0) for r in comp["results"]), default=0)
+        tool_results[comp["tool"]] = {
+            "available": True,
+            "maxSimilarity": max_sim,
+            "matchCount": sum(1 for r in comp["results"] if r.get("similarity", 0) >= threshold),
+        }
+
+    return {
+        "plagiarismDetected": report["plagiarism_detected"],
+        "overallScore": report["overall_score"],
+        "overallPercentage": report["overall_percentage"],
+        "plagiarismType": report["plagiarism_type"],
+        "severity": report["severity"],
+        "confidence": report["confidence"],
+        "methodCount": report["method_count"],
+        "scoreBreakdown": report["score_breakdown"],
+        "detectionMethods": report["detection_methods"],
+        "reasoning": report["reasoning"],
+        "highestSimilarity": report["overall_score"],
+        "toolResults": tool_results,
+        "totalChecksRun": report["method_count"],
+        "threshold": threshold,
+        "isAboveThreshold": report["is_above_threshold"],
+        "explanation": report["explanation"],
+        "displayMessage": report["display_message"],
+    }
+
+
+@app.route("/api/check-full", methods=["POST"])
+def api_check_full():
+    """
+    Comprehensive plagiarism check combining:
+      1. Local semantic embedding search (Pinecone)
+      2. Direct tool-based comparison (copydetect, difflib, tree-sitter)
+      3. Scoring engine for final decision
+
+    Request body:
+    {
+      "code": str,
+      "questionId": str,
+      "examId": str (optional),
+      "language": str (optional, default "javascript"),
+      "similarityThreshold": float (optional, default 0.75),
+      "maxResults": int (optional, default 5),
+      "useNormalization": bool (optional, default true)
+    }
+    """
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"success": False, "error": "Invalid or missing JSON body"}), 400
+
+        code = data.get("code", "")
+        question_id = (data.get("questionId") or "").strip()
+        exam_id_raw = data.get("examId")
+        exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
+        language = data.get("language", "javascript")
+        similarity_threshold = float(data.get("similarityThreshold", 0.75))
+        max_results = int(data.get("maxResults", 5))
+        use_normalization = data.get("useNormalization", True)
+        custom_api_key = request.headers.get("X-OpenAI-API-Key")
+
+        if not code or not question_id:
+            return jsonify({"success": False, "error": "Missing required fields: code, questionId"}), 400
+        if not code.strip():
+            return jsonify({"success": False, "error": "Code cannot be empty"}), 400
+
+        logger.info(f"[Check-Full] Checking similarity for question {question_id}")
+
+        # Verify submissions exist (retry once for Pinecone eventual consistency)
+        existing_submissions = vector_db.get_submissions_by_question(question_id, exam_id)
+        if not existing_submissions:
+            time.sleep(2.5)
+            existing_submissions = vector_db.get_submissions_by_question(question_id, exam_id)
+        if not existing_submissions:
+            return jsonify({
+                "success": False,
+                "error": f'No submissions found for question "{question_id}". Please submit code for this question first before checking for similarity.',
+                "errorType": "NO_SUBMISSIONS",
+                "questionId": question_id,
+            }), 404
+
+        logger.info(f"[Check-Full] Found {len(existing_submissions)} existing submissions")
+
+        # 1. Generate embedding for submitted code
+        code_embedding = embeddings.generate_code_embedding(code, language, custom_api_key, use_normalization)
+
+        # 2. Find similar whole submissions (low threshold, scoring engine filters later)
+        search_threshold = min(0.3, similarity_threshold)
+        similar_submissions = vector_db.find_similar_submissions(
+            code_embedding, question_id, 50, search_threshold, exam_id,
+        )
+
+        # 3. Extract and check chunks
+        code_chunks = chunking.extract_code_chunks(code, language)
+        similar_chunks: list[dict] = []
+        if code_chunks:
+            query_chunks_emb = embeddings.generate_chunk_embeddings(
+                code_chunks, language, custom_api_key, use_normalization,
+            )
+            for chunk in query_chunks_emb:
+                matches = vector_db.find_similar_chunks(
+                    chunk["embedding"], question_id, 10, search_threshold, exam_id,
+                )
+                for m in matches:
+                    m["query_chunk_index"] = chunk["index"]
+                    m["query_chunk_text"] = chunk["text"]
+                similar_chunks.extend(matches)
+            similar_chunks.sort(key=lambda c: c.get("similarity", 0), reverse=True)
+
+        # Build summary
+        unique_matched = set(
+            [s["id"] for s in similar_submissions]
+            + [c.get("submission_id", "") for c in similar_chunks]
+        )
+        high_sim = [s for s in similar_submissions if s.get("similarity", 0) >= 0.85]
+        moderate_sim = [s for s in similar_submissions if 0.75 <= s.get("similarity", 0) < 0.85]
+        summary = {
+            "totalMatchedSubmissions": len(unique_matched),
+            "highSimilarity": len(high_sim),
+            "moderateSimilarity": len(moderate_sim),
+            "matchedChunks": len(similar_chunks),
+            "maxSimilarity": similar_submissions[0]["similarity"] if similar_submissions else 0,
+            "threshold": similarity_threshold,
+        }
+
+        def _fmt_sub(sub):
+            return {
+                "submissionId": sub["id"],
+                "studentId": sub["student_id"],
+                "similarity": round(sub["similarity"], 3),
+                "code": sub.get("code", ""),
+                "codePreview": sub.get("code", "")[:200] + ("..." if len(sub.get("code", "")) > 200 else ""),
+                "codeLength": len(sub.get("code", "")),
+            }
+
+        def _fmt_chunk(chunk):
+            qtext = chunk.get("query_chunk_text") or ""
+            mtext = chunk.get("chunk_text") or ""
+            return {
+                "submissionId": chunk.get("submission_id", ""),
+                "studentId": chunk.get("student_id", ""),
+                "similarity": round(chunk.get("similarity", 0), 3),
+                "queryChunkIndex": chunk.get("query_chunk_index"),
+                "queryChunkPreview": qtext[:150] + ("..." if len(qtext) > 150 else ""),
+                "matchedChunkText": mtext[:150] + ("..." if len(mtext) > 150 else ""),
+                "matchedChunkIndex": chunk.get("chunk_index"),
+            }
+
+        # 4. Run tool-based comparison DIRECTLY (no HTTP call)
+        submissions_for_tools = [
+            {"id": sub.get("student_id") or sub["id"], "code": sub.get("code", "")}
+            for sub in existing_submissions
+        ]
+
+        logger.info(f"[Check-Full] Running tool comparisons on {len(submissions_for_tools)} submissions")
+        tool_comparisons = _run_tool_comparisons("current_check", code, submissions_for_tools, language)
+        external_result = _format_external_result(tool_comparisons, existing_submissions, "current_check")
+
+        # 5. Scoring engine: final decision
+        local_result_for_scoring = {
+            "has_matches": len(similar_submissions) > 0,
+            "max_similarity": similar_submissions[0]["similarity"] if similar_submissions else 0,
+            "match_count": len(similar_submissions),
+            "submissions": similar_submissions,
+        }
+        structural_data = {
+            "current_code": code,
+            "compared_code": similar_submissions[0]["code"] if similar_submissions else "",
+            "language": language,
+        }
+
+        final_decision = _determine_final_decision(
+            local_result_for_scoring, external_result, similarity_threshold, structural_data,
+        )
+
+        # 6. Build local / external verdicts
+        local_verdict = {
+            "method": "Local Vector Similarity (Semantic)",
+            "plagiarism_detected": (
+                len(similar_submissions) > 0
+                and similar_submissions[0]["similarity"] >= similarity_threshold
+            ),
+            "confidence": (
+                "high" if similar_submissions and similar_submissions[0]["similarity"] >= 0.85
+                else "medium" if similar_submissions and similar_submissions[0]["similarity"] >= 0.75
+                else "low" if similar_submissions
+                else "none"
+            ),
+            "max_similarity": round(similar_submissions[0]["similarity"] * 100) if similar_submissions else 0,
+            "matches_found": len(similar_submissions),
+            "summary": (
+                f"Found {len(similar_submissions)} similar submission(s). Highest similarity: {round(similar_submissions[0]['similarity'] * 100)}%"
+                if similar_submissions
+                else "No similar submissions found in local database"
+            ),
+            "details": {
+                "threshold_used": round(similarity_threshold * 100),
+                "top_matches": [_fmt_sub(s) for s in similar_submissions[:max_results]],
+                "similar_chunks": [_fmt_chunk(c) for c in similar_chunks[:10]],
+            },
+        }
+
+        external_verdict = {
+            "method": "External API (AST + Code Structure)",
+            "plagiarism_detected": external_result.get("available") and final_decision.get("plagiarismDetected", False),
+            "confidence": final_decision.get("confidence", "unknown"),
+            "max_similarity": round(final_decision.get("highestSimilarity", 0) * 100),
+            "matches_found": len(external_result.get("summary", [])),
+            "summary": (
+                f"External API detected {len(external_result.get('summary', []))} potential match(es)"
+                if external_result.get("available") and external_result.get("summary")
+                else "External API found no matches"
+                if external_result.get("available")
+                else "External API unavailable"
+            ),
+            "details": external_result or {"available": False},
+        }
+
+        overall_assessment = {
+            "status": "PLAGIARISM_DETECTED" if local_verdict["plagiarism_detected"] or external_verdict["plagiarism_detected"] else "NO_PLAGIARISM",
+            "priority": (
+                "HIGH_PRIORITY" if local_verdict["plagiarism_detected"] and external_verdict["plagiarism_detected"]
+                else "MEDIUM_PRIORITY" if local_verdict["plagiarism_detected"] or external_verdict["plagiarism_detected"]
+                else "LOW_PRIORITY"
+            ),
+            "recommendation": (
+                "Review required - one or more detection methods flagged this submission"
+                if local_verdict["plagiarism_detected"] or external_verdict["plagiarism_detected"]
+                else "No plagiarism detected by any method"
+            ),
+            "methods_flagged": (
+                (["Local Vector Similarity"] if local_verdict["plagiarism_detected"] else [])
+                + (["External API Analysis"] if external_verdict["plagiarism_detected"] else [])
+            ),
+        }
+
+        return jsonify({
+            "success": True,
+            "detection_results": {"local": local_verdict, "external": external_verdict},
+            "overall": overall_assessment,
+            "local_result": {
+                "summary": summary,
+                "similarSubmissions": [_fmt_sub(s) for s in similar_submissions[:max_results]],
+                "similarChunks": [_fmt_chunk(c) for c in similar_chunks[:10]],
+            },
+            "external_result": external_result,
+            "final_decision": final_decision,
+            "summary": summary,
+            "similarSubmissions": [_fmt_sub(s) for s in similar_submissions[:max_results]],
+            "similarChunks": [_fmt_chunk(c) for c in similar_chunks[:10]],
+            "timestamp": datetime.utcnow().isoformat(),
+        })
+    except Exception as e:
+        logger.error(f"[Check-Full Error] {e}")
+        msg = str(e)
+        if "Pinecone" in msg:
+            return jsonify({"success": False, "error": "Vector database not configured. Please set PINECONE_API_KEY in your backend .env file. Get free API key from https://www.pinecone.io/", "errorType": "PINECONE_NOT_CONFIGURED"}), 503
+        if "quota" in msg:
+            return jsonify({"success": False, "error": 'OpenAI API quota exceeded. Please provide a valid API key with available credits using the "OpenAI API Key" field in the frontend.', "errorType": "QUOTA_EXCEEDED"}), 402
+        if "API key" in msg:
+            return jsonify({"success": False, "error": 'Invalid or missing OpenAI API key. Please provide a valid API key using the "OpenAI API Key" field in the frontend.', "errorType": "INVALID_API_KEY"}), 401
+        return jsonify({"success": False, "error": msg}), 500
+
+
+@app.route("/api/submissions/<question_id>", methods=["GET"])
+def api_get_submissions(question_id):
+    try:
+        qid = question_id.strip()
+        exam_id_raw = request.args.get("examId")
+        exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
+        submissions = vector_db.get_submissions_by_question(qid, exam_id)
+        return jsonify({
+            "success": True,
+            "questionId": qid,
+            "count": len(submissions),
+            "submissions": [
+                {
+                    "id": s["id"],
+                    "studentId": s["student_id"],
+                    "codeLength": len(s.get("code", "")),
+                    "createdAt": s.get("created_at"),
+                }
+                for s in submissions
+            ],
+        })
+    except Exception as e:
+        logger.error(f"[Get Submissions Error] {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/reembed/<question_id>", methods=["POST"])
+def api_reembed(question_id):
+    """Re-generate embeddings for all submissions of a question."""
+    try:
+        qid = question_id.strip()
+        data = request.get_json(force=True, silent=True) or {}
+        use_normalization = data.get("useNormalization", True)
+        exam_id_raw = data.get("examId")
+        exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
+        custom_api_key = request.headers.get("X-OpenAI-API-Key")
+
+        submissions = vector_db.get_submissions_by_question(qid, exam_id)
+        if not submissions:
+            return jsonify({"success": False, "error": f'No submissions found for question "{qid}"'}), 404
+
+        logger.info(f"[Re-embed] Re-embedding {len(submissions)} submissions for {qid}")
+        success_count = 0
+        fail_count = 0
+
+        for sub in submissions:
+            try:
+                lang = "python"
+                new_emb = embeddings.generate_code_embedding(sub["code"], lang, custom_api_key, use_normalization)
+                chunks = chunking.extract_code_chunks(sub["code"], lang)
+                chunks_emb = (
+                    embeddings.generate_chunk_embeddings(chunks, lang, custom_api_key, use_normalization)
+                    if chunks else []
+                )
+                vector_db.save_submission({
+                    "submission_id": sub["id"],
+                    "student_id": sub["student_id"],
+                    "question_id": sub["question_id"],
+                    "exam_id": sub.get("exam_id"),
+                    "code": sub["code"],
+                    "embedding": new_emb,
+                    "chunks": chunks_emb,
+                })
+                success_count += 1
+            except Exception as err:
+                fail_count += 1
+                logger.error(f"[Re-embed] Failed {sub['id']}: {err}")
+
+        return jsonify({
+            "success": True,
+            "questionId": qid,
+            "totalSubmissions": len(submissions),
+            "successCount": success_count,
+            "failCount": fail_count,
+            "message": f"Successfully re-embedded {success_count} out of {len(submissions)} submissions",
+        })
+    except Exception as e:
+        logger.error(f"[Re-embed Error] {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/submission/<submission_id>", methods=["GET"])
+def api_get_submission(submission_id):
+    try:
+        submission = vector_db.get_submission(submission_id)
+        if not submission:
+            return jsonify({"success": False, "error": "Submission not found"}), 404
+        return jsonify({"success": True, "submission": submission})
+    except Exception as e:
+        logger.error(f"[Get Submission Error] {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 if __name__ == "__main__":
     import os
+
+    pinecone_ok = False
+    try:
+        pinecone_ok = vector_db.initialize_index()
+    except Exception as e:
+        logger.warning(f"Pinecone init failed (non-fatal): {e}")
+
     port = int(os.environ.get("PORT", 8080))
+    logger.info(f"Starting server on port {port}")
+    logger.info(f"Embedding model: {embeddings.EMBEDDING_MODEL}")
+    logger.info(f"Pinecone: {'OK' if pinecone_ok else 'NOT CONFIGURED'}")
     app.run(host="0.0.0.0", port=port, debug=True)
