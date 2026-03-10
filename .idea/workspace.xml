@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="fix some issue">
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="update requirements .txt">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/vector_db.py" beforeDir="false" afterPath="$PROJECT_DIR$/vector_db.py" afterDir="false" />
     </list>
     <list id="13c234f5-e02c-4f4d-9134-1fb3dfdc0609" name="Changes1" comment="">
@@ -255,16 +255,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/home/nxtwave-tech/Desktop/nkb_nw/nkb_assessment_backend"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/nxtwave-tech/Downloads/pdbf/PlagDetectFrontend&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -360,7 +360,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772707283745</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="fix some issue in conversion to python">
+      <option name="closed" value="true" />
+      <created>1772710864873</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1772710864873</updated>
+    </task>
+    <task id="LOCAL-00012" summary="update requirements .txt">
+      <option name="closed" value="true" />
+      <created>1772711221812</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1772711221812</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -385,6 +401,8 @@
     <MESSAGE value="fix top n results trimming." />
     <MESSAGE value="converts embeddings logic to python" />
     <MESSAGE value="fix some issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix some issue" />
+    <MESSAGE value="fix some issue in conversion to python" />
+    <MESSAGE value="update requirements .txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="update requirements .txt" />
   </component>
 </project>

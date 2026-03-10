@@ -62,13 +62,13 @@ def save_submission(data: dict) -> str:
 
     normalized_exam_id = str(exam_id).strip() if exam_id and str(exam_id).strip() else ""
     normalized_language = str(language).strip().lower() if language and str(language).strip() else ""
-
+    MAX_CODE_METADATA = 35000
     base_metadata = {
         "type": "submission",
         "submissionId": submission_id,
         "studentId": student_id,
         "questionId": question_id,
-        "code": code[:1000],
+        "code": code[:MAX_CODE_METADATA],
         "codeLength": len(code),
         "timestamp": int(datetime.now().timestamp() * 1000),
     }
@@ -103,7 +103,7 @@ def save_submission(data: dict) -> str:
             "metadata": {
                 **chunk_base,
                 "chunkIndex": idx,
-                "chunkText": chunk["text"][:1000],
+                "chunkText": chunk["text"][:2000],
                 "timestamp": int(datetime.now().timestamp() * 1000),
             },
         })
