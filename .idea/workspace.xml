@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="update timeout duration for csv upload.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ast_based.py" beforeDir="false" afterPath="$PROJECT_DIR$/ast_based.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_c.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_c.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_cpp.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_cpp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_csharp.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_csharp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_java.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_java.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_javascript.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_javascript.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plagiarism_detect_treesitter_python.py" beforeDir="false" afterPath="$PROJECT_DIR$/plagiarism_detect_treesitter_python.py" afterDir="false" />
-    </list>
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="use jaccard similarity for ast. fix max_results key issue." />
     <list id="13c234f5-e02c-4f4d-9134-1fb3dfdc0609" name="Changes1" comment="">
       <change afterPath="$PROJECT_DIR$/batches/CASES_EXPLANATION.md" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/batches_c.zip" afterDir="false" />
@@ -413,7 +404,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773212066898</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="use jaccard similarity for ast. fix max_results key issue.">
+      <option name="closed" value="true" />
+      <created>1773232730151</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1773232730151</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -445,6 +444,7 @@
     <MESSAGE value="implement parallel processing for csv upload." />
     <MESSAGE value="implement parallel processing for csv upload." />
     <MESSAGE value="update timeout duration for csv upload." />
-    <option name="LAST_COMMIT_MESSAGE" value="update timeout duration for csv upload." />
+    <MESSAGE value="use jaccard similarity for ast. fix max_results key issue." />
+    <option name="LAST_COMMIT_MESSAGE" value="use jaccard similarity for ast. fix max_results key issue." />
   </component>
 </project>
