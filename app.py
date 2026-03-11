@@ -600,28 +600,23 @@ def api_submit_bulk():
 
         results = {"success": 0, "failed": 0, "errors": []}
 
-        for i, row in enumerate(rows):
-            exam_id_raw = row.get("exam_id")
+        def process_row(index, row_data):
+            exam_id_raw = row_data.get("exam_id")
             exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
-            question_id = str(row.get("question_id", "")).strip()
-            student_id = str(row.get("student_id", "")).strip()
-            code = str(row.get("submission", ""))
-            language = str(row.get("language", "javascript")).strip() or "javascript"
+            question_id = str(row_data.get("question_id", "")).strip()
+            student_id = str(row_data.get("student_id", "")).strip()
+            code_text = str(row_data.get("submission", ""))
+            lang = str(row_data.get("language", "javascript")).strip() or "javascript"
 
-            if not question_id or not student_id or not code or len(code.strip()) < 10:
-                results["failed"] += 1
-                results["errors"].append({
-                    "row": i + 1,
-                    "error": "Missing or invalid exam_id/question_id/student_id/submission (code min 10 chars)",
-                })
-                continue
+            if not question_id or not student_id or not code_text or len(code_text.strip()) < 10:
+                return {"status": "failed", "error": {"row": index + 1, "error": "Missing or invalid exam_id/question_id/student_id/submission (code min 10 chars)"}}
 
             try:
-                submission_id = f"{student_id}_{question_id}_{int(time.time() * 1000)}_{i}"
-                emb = embeddings.generate_code_embedding(code, language, custom_api_key, use_normalization)
-                code_chunks = chunking.extract_code_chunks(code, language)
+                submission_id = f"{student_id}_{question_id}_{int(time.time() * 1000)}_{index}"
+                emb = embeddings.generate_code_embedding(code_text, lang, custom_api_key, use_normalization)
+                code_chunks = chunking.extract_code_chunks(code_text, lang)
                 chunks_emb = (
-                    embeddings.generate_chunk_embeddings(code_chunks, language, custom_api_key, use_normalization)
+                    embeddings.generate_chunk_embeddings(code_chunks, lang, custom_api_key, use_normalization)
                     if code_chunks else []
                 )
                 vector_db.save_submission({
@@ -629,15 +624,25 @@ def api_submit_bulk():
                     "student_id": student_id,
                     "question_id": question_id,
                     "exam_id": exam_id,
-                    "code": code,
-                    "language": language,
+                    "code": code_text,
+                    "language": lang,
                     "embedding": emb,
                     "chunks": chunks_emb,
                 })
-                results["success"] += 1
+                return {"status": "success"}
             except Exception as err:
-                results["failed"] += 1
-                results["errors"].append({"row": i + 1, "error": str(err) or "Processing failed"})
+                return {"status": "failed", "error": {"row": index + 1, "error": str(err) or "Processing failed"}}
+
+        # Use ThreadPoolExecutor to generate embeddings and save to Pinecone concurrently
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_row = {executor.submit(process_row, i, row): i for i, row in enumerate(rows)}
+            for future in concurrent.futures.as_completed(future_to_row):
+                res = future.result()
+                if res["status"] == "success":
+                    results["success"] += 1
+                else:
+                    results["failed"] += 1
+                    results["errors"].append(res["error"])
 
         return jsonify({
             "success": True,
