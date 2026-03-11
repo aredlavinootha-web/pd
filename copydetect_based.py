@@ -58,7 +58,7 @@ def main():
         matches = top_matches[sid]
         print(f"\n{sid}:")
         for rank, m in enumerate(matches, 1):
-            other_id = m["other_student_id"]
+            other_id = m["matched_id"]
             sim = m["similarity"]
             pct = sim * 100
             print(f"  {rank:2}. {other_id}  {pct:6.2f}%")

@@ -8,6 +8,7 @@ import json
 import time
 import logging
 from datetime import datetime
+import concurrent.futures
 
 from flask import Flask, request, render_template_string, jsonify
 from flask.json.provider import DefaultJSONProvider
@@ -999,7 +1000,10 @@ def api_check():
             ]
             logger.info(f"[Check] Sending ALL {len(submissions_for_tools)} submissions to external API")
 
-            tool_comparisons = _run_tool_comparisons("current_check", code, submissions_for_tools, language, max_results)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_run_tool_comparisons, "current_check", code, submissions_for_tools, language, max_results)
+                tool_comparisons = future.result(timeout=90)
+                
             external_result = _format_external_result(tool_comparisons, existing_submissions, "current_check")
 
             local_result_for_scoring = {
@@ -1018,6 +1022,27 @@ def api_check():
                 local_result_for_scoring, external_result, similarity_threshold, structural_data,
             )
             logger.info(f"[Check] Final decision: Plagiarism={final_decision.get('plagiarismDetected')}, Confidence={final_decision.get('confidence')}")
+
+        except concurrent.futures.TimeoutError:
+            logger.error("[Check] External API comparison timed out after 90 seconds (graceful fallback)")
+            external_result = {"available": False, "error": "Comparison timed out after 90 seconds. Try testing against fewer submissions or increase timeout.", "matches": []}
+            
+            local_result_for_scoring = {
+                "has_matches": len(similar_submissions) > 0,
+                "max_similarity": similar_submissions[0]["similarity"] if similar_submissions else 0,
+                "match_count": len(similar_submissions),
+                "submissions": similar_submissions,
+            }
+            structural_data = {
+                "current_code": code,
+                "compared_code": similar_submissions[0]["code"] if similar_submissions else "",
+                "language": language,
+            }
+
+            final_decision = _determine_final_decision(
+                local_result_for_scoring, {"available": False, "comparisons": []}, similarity_threshold, structural_data,
+            )
+            final_decision["reasoning"].append("Note: External API verification unavailable due to timeout")
 
         except Exception as tool_err:
             logger.error(f"[Check] External API call failed: {tool_err}")
