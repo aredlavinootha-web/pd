@@ -1007,7 +1007,7 @@ def api_check():
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
                 future = executor.submit(_run_tool_comparisons, "current_check", code, submissions_for_tools, language, max_results)
-                tool_comparisons = future.result(timeout=90)
+                tool_comparisons = future.result(timeout=280)
                 
             external_result = _format_external_result(tool_comparisons, existing_submissions, "current_check")
 
@@ -1029,8 +1029,8 @@ def api_check():
             logger.info(f"[Check] Final decision: Plagiarism={final_decision.get('plagiarismDetected')}, Confidence={final_decision.get('confidence')}")
 
         except concurrent.futures.TimeoutError:
-            logger.error("[Check] External API comparison timed out after 90 seconds (graceful fallback)")
-            external_result = {"available": False, "error": "Comparison timed out after 90 seconds. Try testing against fewer submissions or increase timeout.", "matches": []}
+            logger.error("[Check] External API comparison timed out after 280 seconds (graceful fallback)")
+            external_result = {"available": False, "error": "Comparison timed out after 280 seconds. Try testing against fewer submissions or increase timeout.", "matches": []}
             
             local_result_for_scoring = {
                 "has_matches": len(similar_submissions) > 0,
