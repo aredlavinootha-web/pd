@@ -1,10 +1,11 @@
 """
 Plagiarism detection using tree-sitter for C.
-Compares AST structure similarity between code snippets.
+Compares AST structure similarity between code snippets (Jaccard n-gram similarity).
 """
 
-import difflib
 import re
+
+from ast_similarity import compute_jaccard_similarity
 
 try:
     from tree_sitter import Parser, Language, Node
@@ -140,39 +141,18 @@ def compare_code_treesitter_c(
             })
             continue
 
-        # Structural similarity (LCS)
-        matcher = difflib.SequenceMatcher(None, main_ast, other_ast)
-        structural_sim = matcher.ratio()
+        ast_similarity = compute_jaccard_similarity(main_ast, other_ast)
 
-        # Bag-of-nodes: when order differs (reordering, partial copy), structural similarity
-        # can be low. Blend in set overlap to help when same logic is reordered.
-        main_tokens = main_ast.split()
-        other_tokens = other_ast.split()
-        main_set = set(main_tokens)
-        other_set = set(other_tokens)
-        set_overlap = len(main_set & other_set) / len(main_set | other_set) if (main_set | other_set) else 0.0
-
-        # When structural is moderate but set overlap is high (reordering, partial copy),
-        # blend to help get scores into expected range
-        if set_overlap >= 0.99:
-            # Same node set, different order (whitespace/formatting, code reordering)
-            ast_similarity = 0.4 * structural_sim + 0.6 * set_overlap
-        elif structural_sim < 0.75 and set_overlap > 0.45:
-            ast_similarity = 0.55 * structural_sim + 0.45 * set_overlap
-        else:
-            ast_similarity = structural_sim
-
-        # Template/skeleton: same boilerplate, different logic (toupper vs tolower)
-        # Cap when call function names differ
+        # Template/skeleton: cap when call function names differ (toupper vs tolower)
         main_calls = set(re.findall(r"call:\w+", main_ast))
         other_calls = set(re.findall(r"call:\w+", other_ast))
-        if main_calls and other_calls and main_calls != other_calls and structural_sim > 0.95:
+        if main_calls and other_calls and main_calls != other_calls and ast_similarity > 0.95:
             ast_similarity = min(ast_similarity, 0.85)
 
-        # Minor logic: when comparison operators differ (a>b vs b<=a), cap to avoid 99%+
+        # Minor logic: cap when comparison operators differ
         main_ops = set(re.findall(r"op:[<>=!]+", main_ast))
         other_ops = set(re.findall(r"op:[<>=!]+", other_ast))
-        if main_ops and other_ops and main_ops != other_ops and structural_sim > 0.95:
+        if main_ops and other_ops and main_ops != other_ops and ast_similarity > 0.95:
             ast_similarity = min(ast_similarity, 0.90)
 
         results.append({

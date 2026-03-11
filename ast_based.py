@@ -28,7 +28,7 @@ from plagiarism_detect_treesitter_python import _parse_and_serialize
 import difflib
 import re
 
-NUM_STUDENTS = 100
+NUM_STUDENTS = int(sys.argv[1]) if len(sys.argv) > 1 else 100
 TOP_N = 10
 
 

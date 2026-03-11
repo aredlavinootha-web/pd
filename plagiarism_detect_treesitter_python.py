@@ -1,10 +1,11 @@
 """
 Plagiarism detection using tree-sitter for Python.
-Compares AST structure similarity between code snippets.
+Compares AST structure similarity between code snippets (Jaccard n-gram similarity).
 """
 
-import difflib
 import re
+
+from ast_similarity import compute_jaccard_similarity
 
 try:
     from tree_sitter import Parser, Language, Node
@@ -138,29 +139,12 @@ def compare_code_treesitter_python(
             })
             continue
 
-        # Structural similarity (LCS) - good for same structure, order-flexible
-        matcher = difflib.SequenceMatcher(None, main_ast, other_ast)
-        structural_sim = matcher.ratio()
+        ast_similarity = compute_jaccard_similarity(main_ast, other_ast)
 
-        # Order-sensitive component: only apply when structural is very high (>0.92)
-        # to penalize code reordering without hurting function extraction / partial copy
-        main_tokens = main_ast.split()
-        other_tokens = other_ast.split()
-        n = min(len(main_tokens), len(other_tokens))
-        order_matches = sum(1 for i in range(n) if main_tokens[i] == other_tokens[i]) if n else 0
-        order_sim = order_matches / n if n else 0.0
-
-        if structural_sim > 0.92:
-            # Likely reordering: blend in order-sensitivity to reduce inflated score
-            ast_similarity = 0.85 * structural_sim + 0.15 * order_sim
-        else:
-            ast_similarity = structural_sim
-
-        # Template/skeleton: same boilerplate, different logic (e.g., upper vs lower)
-        # Cap similarity when core logic differs (attr: method names differ)
+        # Template/skeleton: cap when core logic differs (attr: method names differ)
         main_attrs = set(re.findall(r"attr:\w+", main_ast))
         other_attrs = set(re.findall(r"attr:\w+", other_ast))
-        if main_attrs and other_attrs and main_attrs != other_attrs and structural_sim > 0.95:
+        if main_attrs and other_attrs and main_attrs != other_attrs and ast_similarity > 0.95:
             ast_similarity = min(ast_similarity, 0.85)
 
         results.append({

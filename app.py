@@ -393,7 +393,7 @@ def api_detect():
         other_students = data.get("other_students", [])
         language = data.get("language", "python")
         tools = data.get("tools", ["copydetect", "difflib", "treesitter_python", "treesitter_cpp"])
-        max_results = data.get("max_results")
+        max_results = data.get("maxResults")
 
         if not isinstance(other_students, list):
             return jsonify({"error": "'other_students' must be a list of {id, code}"}), 400
@@ -417,26 +417,16 @@ def api_detect():
             if tool in tool_map:
                 comparisons.append(tool_map[tool]())
 
-        # If max_results is set, trim each tool's results to top N by similarity
-        if max_results is not None and max_results >= 0:
-            other_ids = [o.get("id", "unknown") for o in other_students]
-            scores_by_oid = {}
-            for oid in other_ids:
-                scores = []
-                for comp in comparisons:
-                    if comp.get("available") and comp.get("results"):
-                        for r in comp["results"]:
-                            if r.get("other_student_id") == oid and r.get("similarity") is not None:
-                                scores.append(r["similarity"])
-                                break
-                avg = sum(scores) / len(scores) if scores else 0.0
-                scores_by_oid[oid] = avg
-            top_n_ids = {
-                oid for oid, _ in sorted(scores_by_oid.items(), key=lambda x: x[1], reverse=True)[:max_results]
-            }
+        # If max_results is set, trim each tool's results to top N by that tool's similarity
+        if max_results is not None and max_results > 0:
             for comp in comparisons:
-                if comp.get("results"):
-                    comp["results"] = [r for r in comp["results"] if r.get("other_student_id") in top_n_ids]
+                if comp.get("available") and comp.get("results"):
+                    sorted_results = sorted(
+                        comp["results"],
+                        key=lambda r: r.get("similarity") if r.get("similarity") is not None else -1,
+                        reverse=True,
+                    )
+                    comp["results"] = sorted_results[:max_results]
 
         response_body = {
             "main_student_id": main_id,
@@ -691,24 +681,16 @@ def _run_tool_comparisons(
         if tool in tool_map:
             comparisons.append(tool_map[tool]())
 
-    if max_results is not None and max_results >= 0:
-        other_ids = [o.get("id", "unknown") for o in other_students]
-        scores_by_oid: dict[str, float] = {}
-        for oid in other_ids:
-            scores = []
-            for comp in comparisons:
-                if comp.get("available") and comp.get("results"):
-                    for r in comp["results"]:
-                        if r.get("other_student_id") == oid and r.get("similarity") is not None:
-                            scores.append(r["similarity"])
-                            break
-            scores_by_oid[oid] = sum(scores) / len(scores) if scores else 0.0
-        top_n_ids = {
-            oid for oid, _ in sorted(scores_by_oid.items(), key=lambda x: x[1], reverse=True)[:max_results]
-        }
+    # Trim each tool's results to top N by that tool's similarity
+    if max_results is not None and max_results > 0:
         for comp in comparisons:
-            if comp.get("results"):
-                comp["results"] = [r for r in comp["results"] if r.get("other_student_id") in top_n_ids]
+            if comp.get("available") and comp.get("results"):
+                sorted_results = sorted(
+                    comp["results"],
+                    key=lambda r: r.get("similarity") if r.get("similarity") is not None else -1,
+                    reverse=True,
+                )
+                comp["results"] = sorted_results[:max_results]
 
     return comparisons
 
@@ -824,7 +806,7 @@ def api_check():
         exam_id = str(exam_id_raw).strip() if exam_id_raw and str(exam_id_raw).strip() else None
         language = data.get("language", "javascript")
         similarity_threshold = float(data.get("similarityThreshold", 0.75))
-        max_results = int(data.get("maxResults", 5))
+        max_results = int(data.get("maxResults") or data.get("max_results") or 5)
         use_normalization = data.get("useNormalization", True)
         exclude_student_id = data.get("excludeStudentId") or None
         language_filter = data.get("languageFilter") or None
