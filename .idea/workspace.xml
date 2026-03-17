@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="use jaccard similarity for ast. fix max_results key issue." />
+    <list default="true" id="74d38631-803e-4625-8dee-b0d36f929816" name="Changes" comment="add ast_similarity.py file">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <list id="13c234f5-e02c-4f4d-9134-1fb3dfdc0609" name="Changes1" comment="">
       <change afterPath="$PROJECT_DIR$/batches/CASES_EXPLANATION.md" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/batches_c.zip" afterDir="false" />
@@ -412,7 +414,15 @@
       <option name="project" value="LOCAL" />
       <updated>1773232730151</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="add ast_similarity.py file">
+      <option name="closed" value="true" />
+      <created>1773233228895</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1773233228895</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -445,6 +455,7 @@
     <MESSAGE value="implement parallel processing for csv upload." />
     <MESSAGE value="update timeout duration for csv upload." />
     <MESSAGE value="use jaccard similarity for ast. fix max_results key issue." />
-    <option name="LAST_COMMIT_MESSAGE" value="use jaccard similarity for ast. fix max_results key issue." />
+    <MESSAGE value="add ast_similarity.py file" />
+    <option name="LAST_COMMIT_MESSAGE" value="add ast_similarity.py file" />
   </component>
 </project>

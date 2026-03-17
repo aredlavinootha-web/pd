@@ -661,13 +661,12 @@ def _run_tool_comparisons(
     language: str,
     max_results: int | None = None,
 ) -> list[dict]:
-    """Run copydetect, difflib, and the appropriate tree-sitter tool directly (no HTTP).
-    If max_results is set, trim each tool's results to the top N students by avg similarity."""
+    """Run copydetect and the appropriate tree-sitter tool (no difflib). Used by /check API.
+    If max_results is set, trim each tool's results to the top N by that tool's similarity."""
     lang = code_normalizer.resolve_language(language)
-    tools = ["copydetect", "difflib", f"treesitter_{lang}"]
+    tools = ["copydetect", f"treesitter_{lang}"]
     tool_map = {
         "copydetect": lambda: compare_code_copydetect(main_id, main_code, other_students, language),
-        "difflib": lambda: compare_code_difflib(main_id, main_code, other_students),
         "treesitter_python": lambda: compare_code_treesitter_python(main_id, main_code, other_students),
         "treesitter_cpp": lambda: compare_code_treesitter_cpp(main_id, main_code, other_students),
         "treesitter_java": lambda: compare_code_treesitter_java(main_id, main_code, other_students),
@@ -778,7 +777,7 @@ def api_check():
     """
     Comprehensive plagiarism check combining:
       1. Local semantic embedding search (Pinecone)
-      2. Direct tool-based comparison (copydetect, difflib, tree-sitter)
+      2. Direct tool-based comparison (copydetect, tree-sitter; difflib skipped for /check)
       3. Scoring engine for final decision
 
     Request body:

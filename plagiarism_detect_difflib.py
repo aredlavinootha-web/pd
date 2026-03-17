@@ -1,9 +1,15 @@
 """
 Plagiarism detection using difflib SequenceMatcher.
 Uses Ratcliff-Obershelp algorithm for sequence similarity.
+
+For long code (> ~1500 chars), ratio() can be O(n²) or worse and cause timeouts.
+We use quick_ratio() only when either string exceeds MAX_CHARS_FOR_FULL_RATIO.
 """
 
 import difflib
+
+# Above this length, SequenceMatcher.ratio() is too slow (O(n²)+); use quick_ratio() only
+MAX_CHARS_FOR_FULL_RATIO = 1500
 
 
 def compare_code_difflib(
@@ -52,12 +58,21 @@ def compare_code_difflib(
             })
             continue
 
-        matcher = difflib.SequenceMatcher(None, main_code, other_code)
-        ratio = matcher.ratio()
-        quick_ratio = matcher.quick_ratio()
-
-        matcher_normalized = difflib.SequenceMatcher(None, main_normalized, other_normalized)
-        ratio_normalized = matcher_normalized.ratio()
+        use_fast_path = len(main_code) > MAX_CHARS_FOR_FULL_RATIO or len(other_code) > MAX_CHARS_FOR_FULL_RATIO
+        if use_fast_path:
+            # ratio() is O(n²) or worse on long strings → timeout. Use quick_ratio() only (upper bound, fast).
+            matcher = difflib.SequenceMatcher(None, main_code, other_code)
+            quick_ratio = matcher.quick_ratio()
+            matcher_norm = difflib.SequenceMatcher(None, main_normalized, other_normalized)
+            quick_norm = matcher_norm.quick_ratio()
+            ratio = quick_ratio
+            ratio_normalized = quick_norm
+        else:
+            matcher = difflib.SequenceMatcher(None, main_code, other_code)
+            ratio = matcher.ratio()
+            quick_ratio = matcher.quick_ratio()
+            matcher_normalized = difflib.SequenceMatcher(None, main_normalized, other_normalized)
+            ratio_normalized = matcher_normalized.ratio()
 
         results.append({
             "other_student_id": other_id,
