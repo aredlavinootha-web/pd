@@ -995,6 +995,10 @@ def api_check():
             )
             time.sleep(2.5)
             existing_submissions = vector_db.get_submissions_by_question(question_id, exam_id)
+        logger.info(
+            "[TIMING] check_id=%s step=load_submissions cumulative=%.3fs n_submissions=%d",
+            check_id, time.perf_counter() - t_check, len(existing_submissions),
+        )
         if not existing_submissions:
             logger.info("[API/check] END check_id=%s error=NO_SUBMISSIONS elapsed=%.3fs", check_id, time.perf_counter() - t_check)
             return jsonify({
@@ -1063,6 +1067,10 @@ def api_check():
                 "ON" if use_normalization else "OFF",
                 time.perf_counter() - t_emb,
             )
+        logger.info(
+            "[TIMING] check_id=%s step=embedding cumulative=%.3fs",
+            check_id, time.perf_counter() - t_check,
+        )
 
         # Step 2: Find similar whole submissions (low threshold, scoring engine filters later)
         search_threshold = min(0.3, similarity_threshold)
@@ -1080,6 +1088,10 @@ def api_check():
             check_id,
             len(similar_submissions),
             round(top_sim, 4) if top_sim is not None else None,
+        )
+        logger.info(
+            "[TIMING] check_id=%s step=vector_search cumulative=%.3fs",
+            check_id, time.perf_counter() - t_check,
         )
 
         # Apply same pre-filters to vector search results
@@ -1114,6 +1126,10 @@ def api_check():
                 len(query_chunks_emb),
                 time.perf_counter() - t_chunks,
             )
+            logger.info(
+                "[TIMING] check_id=%s step=chunk_embeddings cumulative=%.3fs n_chunks=%d",
+                check_id, time.perf_counter() - t_check, len(query_chunks_emb),
+            )
             def _search_one_chunk(chunk):
                 matches = vector_db.find_similar_chunks(
                     chunk["embedding"], question_id, 10, search_threshold, exam_id,
@@ -1130,6 +1146,10 @@ def api_check():
                         similar_chunks.extend(future.result())
                     except Exception as e:
                         logger.warning("[Check] check_id=%s chunk search error: %s", check_id, e)
+            logger.info(
+                "[TIMING] check_id=%s step=chunk_searches cumulative=%.3fs n_chunk_matches=%d",
+                check_id, time.perf_counter() - t_check, len(similar_chunks),
+            )
 
             # Apply same filters to chunks
             if normalized_exclude:
@@ -1239,6 +1259,10 @@ def api_check():
                 tool_comparisons = future.result(timeout=280)
                 
             external_result = _format_external_result(tool_comparisons, existing_submissions, "current_check")
+            logger.info(
+                "[TIMING] check_id=%s step=tool_comparison cumulative=%.3fs",
+                check_id, time.perf_counter() - t_check,
+            )
 
             local_result_for_scoring = {
                 "has_matches": len(similar_submissions) > 0,
@@ -1379,11 +1403,16 @@ def api_check():
             ),
         }
 
+        total_elapsed = time.perf_counter() - t_check
         logger.info(
             "[API/check] END check_id=%s success overall=%s total_elapsed=%.3fs",
             check_id,
             overall_assessment.get("status"),
-            time.perf_counter() - t_check,
+            total_elapsed,
+        )
+        logger.info(
+            "[TIMING] check_id=%s COMPLETE total=%.3fs",
+            check_id, total_elapsed,
         )
         return jsonify({
             "success": True,

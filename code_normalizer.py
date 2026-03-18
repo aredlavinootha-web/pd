@@ -185,14 +185,14 @@ def analyze_structure(code: str, language: str = "javascript") -> dict:
     elif lang == "java":
         stats["functions"] = len(
             re.findall(
-                r"\b(?:public|private|protected|static|final|abstract|synchronized)\s+[\w<>\[\]\s,?]+\s+\w+\s*\(",
+                r"\b(?:public|private|protected|static|final|abstract|synchronized)\s+[\w<>\[\],?]+\s+\w+\s*\(",
                 code,
             )
         )
         stats["classes"] = len(re.findall(r"\bclass\s+\w+", code))
     elif lang in ("cpp", "c"):
         stats["functions"] = len(
-            re.findall(r"(?:^|\n)\s*(?:[\w:*&<>\[\]\s]+\s+)+\w+\s*\([^)]*\)\s*\{", code)
+            re.findall(r"(?:^|\n)\s*(?:[\w:*&<>\[\]]+\s+)+\w+\s*\([^)]*\)\s*\{", code)
         )
         stats["classes"] = len(re.findall(r"\bclass\s+\w+", code))
     else:

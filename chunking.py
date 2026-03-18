@@ -174,7 +174,7 @@ JAVA_METHOD_PATTERNS = [
 ]
 
 C_CPP_METHOD_PATTERNS = [
-    re.compile(r"^\s*(?:[\w:*&<>\[\]\s]+\s+)+(\w+)\s*\([^)]*\)\s*\{?"),
+    re.compile(r"^\s*(?:[\w:*&<>\[\]]+\s+)+(\w+)\s*\([^)]*\)\s*\{?"),
 ]
 
 
