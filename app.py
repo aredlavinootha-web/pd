@@ -7,6 +7,7 @@ semantic embedding search (OpenAI + Pinecone) and a scoring engine.
 import json
 import time
 import logging
+import uuid
 from datetime import datetime
 import concurrent.futures
 
@@ -68,6 +69,19 @@ try:
 except Exception as _init_err:
     logger.warning(f"Pinecone init failed (non-fatal): {_init_err}")
 logger.info(f"Pinecone at startup: {'OK' if pinecone_ok else 'NOT CONFIGURED'}")
+
+
+def _summarize_other_students_code(other_students: list) -> dict:
+    """Lengths only — safe for large payloads (e.g. 2500+ char code)."""
+    if not other_students:
+        return {"count": 0}
+    lens = [len(str(o.get("code", "") or "")) for o in other_students]
+    return {
+        "count": len(other_students),
+        "code_len_min": min(lens),
+        "code_len_max": max(lens),
+        "code_len_sum": sum(lens),
+    }
 
 
 # Request schema:
@@ -377,15 +391,17 @@ def index():
 
 @app.route("/api/detect", methods=["POST"])
 def api_detect():
+    req_id = uuid.uuid4().hex[:10]
+    t0 = time.perf_counter()
     try:
         data = request.get_json(force=True, silent=True)
         if not data:
+            logger.info("[API/detect] req_id=%s rejected: invalid JSON", req_id)
             return jsonify({"error": "Invalid or missing JSON body"}), 400
-
-        logging.info("REQUEST /api/detect: %s", json.dumps(data, default=str))
 
         main_student = data.get("main_student")
         if not main_student:
+            logger.info("[API/detect] req_id=%s rejected: missing main_student", req_id)
             return jsonify({"error": "Missing 'main_student' with 'id' and 'code'"}), 400
 
         main_id = main_student.get("id", "")
@@ -396,10 +412,23 @@ def api_detect():
         max_results = data.get("maxResults")
 
         if not isinstance(other_students, list):
+            logger.info("[API/detect] req_id=%s rejected: other_students not a list", req_id)
             return jsonify({"error": "'other_students' must be a list of {id, code}"}), 400
 
         if max_results is not None and (not isinstance(max_results, int) or max_results < 0):
+            logger.info("[API/detect] req_id=%s rejected: bad max_results", req_id)
             return jsonify({"error": "'max_results' must be a non-negative integer"}), 400
+
+        logger.info(
+            "[API/detect] START req_id=%s main_id=%s main_code_len=%d others_summary=%s language=%s tools=%s max_results=%s",
+            req_id,
+            main_id,
+            len(main_code or ""),
+            _summarize_other_students_code(other_students),
+            language,
+            tools,
+            max_results,
+        )
 
         comparisons = []
         tool_map = {
@@ -415,7 +444,19 @@ def api_detect():
 
         for tool in tools:
             if tool in tool_map:
+                t_tool = time.perf_counter()
+                logger.info("[API/detect] req_id=%s tool=%s START", req_id, tool)
                 comparisons.append(tool_map[tool]())
+                comp = comparisons[-1]
+                logger.info(
+                    "[API/detect] req_id=%s tool=%s DONE elapsed=%.3fs available=%s result_count=%s err=%s",
+                    req_id,
+                    tool,
+                    time.perf_counter() - t_tool,
+                    comp.get("available"),
+                    len(comp.get("results") or []),
+                    (comp.get("error") or "")[:120] or None,
+                )
 
         # If max_results is set, trim each tool's results to top N by that tool's similarity
         if max_results is not None and max_results > 0:
@@ -432,9 +473,19 @@ def api_detect():
             "main_student_id": main_id,
             "comparisons": comparisons,
         }
-        logging.info("RESPONSE /api/detect: %s", json.dumps(response_body, default=str))
+        logger.info(
+            "[API/detect] END req_id=%s total_elapsed=%.3fs main_id=%s per_tool=%s",
+            req_id,
+            time.perf_counter() - t0,
+            main_id,
+            [
+                (c.get("tool"), len(c.get("results") or []), c.get("available"))
+                for c in comparisons
+            ],
+        )
         return jsonify(response_body)
     except Exception as e:
+        logger.info("[API/detect] req_id=%s ERROR: %s", req_id, e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -446,24 +497,39 @@ def api_detect():
 
 @app.route("/api/detect-all-pairs", methods=["POST"])
 def api_detect_all_pairs():
+    req_id = uuid.uuid4().hex[:10]
+    t0 = time.perf_counter()
     try:
         data = request.get_json(force=True, silent=True)
         if not data:
+            logger.info("[API/detect-all-pairs] req_id=%s invalid JSON", req_id)
             return jsonify({"error": "Invalid or missing JSON body"}), 400
-
-        logging.info("REQUEST /api/detect-all-pairs: %s", json.dumps(data, default=str))
 
         students = data.get("students", [])
         if not isinstance(students, list):
             return jsonify({"error": "'students' must be a list of {id, code}"}), 400
 
         if len(students) < 2:
+            logger.info("[API/detect-all-pairs] req_id=%s rejected: need >=2 students", req_id)
             return jsonify({"error": "At least 2 students required for all-pairs comparison"}), 400
 
         language = data.get("language", "python")
         top_n = data.get("top_n")
         if top_n is not None and (not isinstance(top_n, int) or top_n < 0):
+            logger.info("[API/detect-all-pairs] req_id=%s rejected: bad top_n", req_id)
             return jsonify({"error": "'top_n' must be a non-negative integer"}), 400
+
+        code_lens = [len(str(s.get("code", "") or "")) for s in students]
+        logger.info(
+            "[API/detect-all-pairs] START req_id=%s students=%d language=%s top_n=%s code_len_min/max/sum=%d/%d/%d",
+            req_id,
+            len(students),
+            language,
+            top_n,
+            min(code_lens) if code_lens else 0,
+            max(code_lens) if code_lens else 0,
+            sum(code_lens),
+        )
 
         result = compare_all_pairs_copydetect(
             students,
@@ -483,9 +549,17 @@ def api_detect_all_pairs():
         if result.get("error"):
             response_body["error"] = result["error"]
 
-        logging.info("RESPONSE /api/detect-all-pairs: %s", json.dumps(response_body, default=str))
+        logger.info(
+            "[API/detect-all-pairs] END req_id=%s elapsed=%.3fs comparisons_count=%s students_count=%s available=%s",
+            req_id,
+            time.perf_counter() - t0,
+            response_body.get("comparisons_count"),
+            response_body.get("students_count"),
+            result.get("available"),
+        )
         return jsonify(response_body)
     except Exception as e:
+        logger.info("[API/detect-all-pairs] req_id=%s ERROR: %s", req_id, e)
         return jsonify({"error": str(e)}), 500
 
 
@@ -527,7 +601,14 @@ def api_submit():
             return jsonify({"success": False, "error": "Code cannot be empty"}), 400
 
         submission_id = f"{student_id}_{question_id}_{int(time.time() * 1000)}"
-        logger.info(f"[Submit] Processing {student_id} for question {question_id}")
+        logger.info(
+            "[API/submit] studentId=%s questionId=%s code_len=%d language=%s normalization=%s",
+            student_id,
+            question_id,
+            len(code),
+            language,
+            use_normalization,
+        )
 
         whole_code_embedding = embeddings.generate_code_embedding(
             code, language, custom_api_key, use_normalization,
@@ -551,6 +632,11 @@ def api_submit():
         })
 
         chunk_stats = chunking.get_chunk_stats(code_chunks)
+        logger.info(
+            "[API/submit] DONE submissionId=%s chunkCount=%s",
+            submission_id,
+            len(code_chunks),
+        )
         return jsonify({
             "success": True,
             "submissionId": submission_id,
@@ -588,6 +674,7 @@ def api_submit_bulk():
                 "error": "Missing or empty 'submissions' array. Each row must have: exam_id, question_id, student_id, submission",
             }), 400
 
+        logger.info("[API/submit/bulk] START rows=%d useNormalization=%s", len(rows), use_normalization)
         results = {"success": 0, "failed": 0, "errors": []}
 
         def process_row(index, row_data):
@@ -634,6 +721,12 @@ def api_submit_bulk():
                     results["failed"] += 1
                     results["errors"].append(res["error"])
 
+        logger.info(
+            "[API/submit/bulk] END total=%d success=%d failed=%d",
+            len(rows),
+            results["success"],
+            results["failed"],
+        )
         return jsonify({
             "success": True,
             "total": len(rows),
@@ -660,11 +753,22 @@ def _run_tool_comparisons(
     other_students: list[dict],
     language: str,
     max_results: int | None = None,
+    check_id: str | None = None,
 ) -> list[dict]:
     """Run copydetect and the appropriate tree-sitter tool (no difflib). Used by /check API.
+    Tools run in parallel so total time is max(copydetect, treesitter), not sum.
     If max_results is set, trim each tool's results to the top N by that tool's similarity."""
     lang = code_normalizer.resolve_language(language)
     tools = ["copydetect", f"treesitter_{lang}"]
+    main_len = len(main_code)
+    num_others = len(other_students)
+    max_other_len = max((len(o.get("code", "") or "") for o in other_students), default=0)
+    cid = f" check_id={check_id}" if check_id else ""
+    logger.info(
+        "[Check]%s Tool comparison: tools=%s | main_code_len=%d, num_others=%d, max_other_code_len=%d (difflib not used)",
+        cid, tools, main_len, num_others, max_other_len,
+    )
+
     tool_map = {
         "copydetect": lambda: compare_code_copydetect(main_id, main_code, other_students, language),
         "treesitter_python": lambda: compare_code_treesitter_python(main_id, main_code, other_students),
@@ -675,10 +779,52 @@ def _run_tool_comparisons(
         "treesitter_javascript": lambda: compare_code_treesitter_javascript(main_id, main_code, other_students),
     }
 
-    comparisons = []
-    for tool in tools:
-        if tool in tool_map:
-            comparisons.append(tool_map[tool]())
+    tool_list = [t for t in tools if t in tool_map]
+    if not tool_list:
+        return []
+
+    def run_one(tool: str) -> tuple[str, float, dict]:
+        t0 = time.perf_counter()
+        result = tool_map[tool]()
+        elapsed = time.perf_counter() - t0
+        return tool, elapsed, result
+
+    results_by_tool: dict[str, dict] = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {executor.submit(run_one, tool): tool for tool in tool_list}
+        done, not_done = concurrent.futures.wait(futures, timeout=280, return_when=concurrent.futures.ALL_COMPLETED)
+        for f in not_done:
+            tool = futures[f]
+            f.cancel()
+            logger.warning("[Check] Tool %s did not finish within 280s (timeout); returning partial results", tool)
+            results_by_tool[tool] = {
+                "tool": tool,
+                "available": False,
+                "error": f"Tool timed out after 280s. Likely cause: many/long submissions. main_code_len={main_len}, num_others={num_others}, max_other_len={max_other_len}.",
+                "results": [],
+            }
+        for f in done:
+            try:
+                tool, elapsed, result = f.result()
+                results_by_tool[tool] = result
+                if elapsed > 60:
+                    logger.warning(
+                        "[Check] Tool %s took %.1fs (slow; may cause timeouts with more/longer code). main_len=%d, num_others=%d",
+                        tool, elapsed, main_len, num_others,
+                    )
+                else:
+                    logger.info("[Check] Tool %s finished in %.2fs", tool, elapsed)
+            except Exception as e:
+                tool = futures[f]
+                logger.exception("[Check] Tool %s failed: %s", tool, e)
+                results_by_tool[tool] = {
+                    "tool": tool,
+                    "available": False,
+                    "error": str(e),
+                    "results": [],
+                }
+
+    comparisons = [results_by_tool[t] for t in tool_list if t in results_by_tool]
 
     # Trim each tool's results to top N by that tool's similarity
     if max_results is not None and max_results > 0:
@@ -820,15 +966,37 @@ def api_check():
         if not code.strip():
             return jsonify({"success": False, "error": "Code cannot be empty"}), 400
 
-        logger.info(f"[Check] Checking similarity for question {question_id}")
+        check_id = uuid.uuid4().hex[:12]
+        t_check = time.perf_counter()
+        logger.info(
+            "[API/check] START check_id=%s questionId=%s examId=%s code_len=%d language=%s "
+            "similarityThreshold=%s maxResults=%s useNormalization=%s excludeStudentId=%s languageFilter=%s submissionId=%s",
+            check_id,
+            question_id,
+            exam_id or "none",
+            len(code),
+            language,
+            similarity_threshold,
+            max_results,
+            use_normalization,
+            normalized_exclude or "none",
+            normalized_lang_filter or "none",
+            submission_id or "none",
+        )
+
+        logger.info("[Check] check_id=%s load_submissions question=%s", check_id, question_id)
 
         # Verify submissions exist (retry once for Pinecone eventual consistency)
         existing_submissions = vector_db.get_submissions_by_question(question_id, exam_id)
         if not existing_submissions:
-            logger.info("[Check] No submissions on first try; retrying in 2.5s (Pinecone eventual consistency)...")
+            logger.info(
+                "[Check] check_id=%s no submissions first fetch; retry 2.5s (Pinecone)",
+                check_id,
+            )
             time.sleep(2.5)
             existing_submissions = vector_db.get_submissions_by_question(question_id, exam_id)
         if not existing_submissions:
+            logger.info("[API/check] END check_id=%s error=NO_SUBMISSIONS elapsed=%.3fs", check_id, time.perf_counter() - t_check)
             return jsonify({
                 "success": False,
                 "error": f'No submissions found for question "{question_id}". Please submit code for this question first before checking for similarity.',
@@ -836,7 +1004,12 @@ def api_check():
                 "questionId": question_id,
             }), 404
 
-        logger.info(f"[Check] Found {len(existing_submissions)} existing submissions for question {question_id}")
+        logger.info(
+            "[Check] check_id=%s loaded %d submissions for question %s",
+            check_id,
+            len(existing_submissions),
+            question_id,
+        )
 
         # Pre-calculation filtering
         if normalized_exclude:
@@ -856,6 +1029,11 @@ def api_check():
             logger.info(f'[Check] Language filter "{normalized_lang_filter}": {before_count} -> {len(existing_submissions)} submissions')
 
         if not existing_submissions:
+            logger.info(
+                "[API/check] END check_id=%s error=NO_SUBMISSIONS_AFTER_FILTER elapsed=%.3fs",
+                check_id,
+                time.perf_counter() - t_check,
+            )
             return jsonify({
                 "success": False,
                 "error": f"No submissions found after filtering (excludeStudentId: {normalized_exclude or 'none'}, languageFilter: {normalized_lang_filter or 'none'}).",
@@ -864,22 +1042,45 @@ def api_check():
             }), 404
 
         # Step 1: Get embedding - reuse from DB if submissionId provided, otherwise generate via OpenAI
+        logger.info("[Check] check_id=%s step=embedding", check_id)
+        t_emb = time.perf_counter()
         code_embedding = None
         if submission_id:
             code_embedding = vector_db.get_submission_embedding(submission_id)
             if code_embedding:
-                logger.info(f"[Check] Reused stored embedding for submission {submission_id} (skipped OpenAI call)")
+                logger.info(
+                    "[Check] check_id=%s reused embedding submissionId=%s (no OpenAI) fetch_elapsed=%.3fs",
+                    check_id,
+                    submission_id,
+                    time.perf_counter() - t_emb,
+                )
 
         if not code_embedding:
             code_embedding = embeddings.generate_code_embedding(code, language, custom_api_key, use_normalization)
-            logger.info(f"[Check] Generated new embedding via OpenAI (normalization: {'ON' if use_normalization else 'OFF'})")
+            logger.info(
+                "[Check] check_id=%s OpenAI embedding done normalization=%s elapsed=%.3fs",
+                check_id,
+                "ON" if use_normalization else "OFF",
+                time.perf_counter() - t_emb,
+            )
 
         # Step 2: Find similar whole submissions (low threshold, scoring engine filters later)
         search_threshold = min(0.3, similarity_threshold)
+        logger.info(
+            "[Check] check_id=%s step=vector_search threshold=%.3f",
+            check_id,
+            search_threshold,
+        )
         similar_submissions = vector_db.find_similar_submissions(
             code_embedding, question_id, 50, search_threshold, exam_id,
         )
-        logger.info(f"[Check] Found {len(similar_submissions)} submissions above {search_threshold} threshold")
+        top_sim = similar_submissions[0]["similarity"] if similar_submissions else None
+        logger.info(
+            "[Check] check_id=%s vector_hits=%d top_similarity=%s",
+            check_id,
+            len(similar_submissions),
+            round(top_sim, 4) if top_sim is not None else None,
+        )
 
         # Apply same pre-filters to vector search results
         if normalized_exclude:
@@ -897,13 +1098,21 @@ def api_check():
             logger.info(f'[Check] After languageFilter "{normalized_lang_filter}": {len(similar_submissions)} similar submissions')
 
         # Step 3: Extract and check chunks
+        logger.info("[Check] check_id=%s step=chunks", check_id)
         code_chunks = chunking.extract_code_chunks(code, language)
-        logger.info(f"[Check] Extracted {len(code_chunks)} chunks from query code")
+        logger.info("[Check] check_id=%s chunk_count=%d", check_id, len(code_chunks))
 
         similar_chunks: list[dict] = []
         if code_chunks:
+            t_chunks = time.perf_counter()
             query_chunks_emb = embeddings.generate_chunk_embeddings(
                 code_chunks, language, custom_api_key, use_normalization,
+            )
+            logger.info(
+                "[Check] check_id=%s chunk_embeddings count=%d elapsed=%.3fs",
+                check_id,
+                len(query_chunks_emb),
+                time.perf_counter() - t_chunks,
             )
             for chunk in query_chunks_emb:
                 matches = vector_db.find_similar_chunks(
@@ -976,18 +1185,36 @@ def api_check():
         external_result = None
         final_decision = None
 
-        logger.info("[Check] Calling external plagiarism API...")
-        logger.info(f"[Check] Local matches found: {len(similar_submissions)}")
-
+        logger.info(
+            "[Check] check_id=%s step=tool_comparisons (copydetect+treesitter) local_vector_hits=%d",
+            check_id,
+            len(similar_submissions),
+        )
         try:
             submissions_for_tools = [
                 {"id": sub.get("student_id") or sub["id"], "code": sub.get("code", "")}
                 for sub in existing_submissions
             ]
-            logger.info(f"[Check] Sending ALL {len(submissions_for_tools)} submissions to external API")
+            tool_code_lens = [len(s.get("code", "") or "") for s in submissions_for_tools]
+            logger.info(
+                "[Check] check_id=%s tool_inputs submissions=%d query_code_len=%d stored_code_len_min/max=%s/%s",
+                check_id,
+                len(submissions_for_tools),
+                len(code),
+                min(tool_code_lens) if tool_code_lens else 0,
+                max(tool_code_lens) if tool_code_lens else 0,
+            )
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(_run_tool_comparisons, "current_check", code, submissions_for_tools, language, max_results)
+                future = executor.submit(
+                    _run_tool_comparisons,
+                    "current_check",
+                    code,
+                    submissions_for_tools,
+                    language,
+                    max_results,
+                    check_id,
+                )
                 tool_comparisons = future.result(timeout=280)
                 
             external_result = _format_external_result(tool_comparisons, existing_submissions, "current_check")
@@ -1007,7 +1234,13 @@ def api_check():
             final_decision = _determine_final_decision(
                 local_result_for_scoring, external_result, similarity_threshold, structural_data,
             )
-            logger.info(f"[Check] Final decision: Plagiarism={final_decision.get('plagiarismDetected')}, Confidence={final_decision.get('confidence')}")
+            logger.info(
+                "[Check] check_id=%s scoring plagiarism=%s confidence=%s overall_score=%s",
+                check_id,
+                final_decision.get("plagiarismDetected"),
+                final_decision.get("confidence"),
+                final_decision.get("overallScore"),
+            )
 
         except concurrent.futures.TimeoutError:
             logger.error("[Check] External API comparison timed out after 280 seconds (graceful fallback)")
@@ -1029,6 +1262,7 @@ def api_check():
                 local_result_for_scoring, {"available": False, "comparisons": []}, similarity_threshold, structural_data,
             )
             final_decision["reasoning"].append("Note: External API verification unavailable due to timeout")
+            logger.info("[API/check] check_id=%s tools_timeout fallback_scoring applied", check_id)
 
         except Exception as tool_err:
             logger.error(f"[Check] External API call failed: {tool_err}")
@@ -1050,8 +1284,18 @@ def api_check():
                 local_result_for_scoring, {"available": False, "comparisons": []}, similarity_threshold, structural_data,
             )
             final_decision["reasoning"].append("Note: External API verification unavailable")
+            logger.info("[API/check] check_id=%s tools_error fallback: %s", check_id, str(tool_err)[:200])
 
         # Step 6: Build local / external verdicts
+        logger.info(
+            "[Check] check_id=%s step=build_response local_flag=%s external_flag=%s",
+            check_id,
+            (
+                len(similar_submissions) > 0
+                and similar_submissions[0]["similarity"] >= similarity_threshold
+            ),
+            external_result.get("available") and final_decision.get("plagiarismDetected", False),
+        )
         local_verdict = {
             "method": "Local Vector Similarity (Semantic)",
             "plagiarism_detected": (
@@ -1114,6 +1358,12 @@ def api_check():
             ),
         }
 
+        logger.info(
+            "[API/check] END check_id=%s success overall=%s total_elapsed=%.3fs",
+            check_id,
+            overall_assessment.get("status"),
+            time.perf_counter() - t_check,
+        )
         return jsonify({
             "success": True,
             "detection_results": {"local": local_verdict, "external": external_verdict},

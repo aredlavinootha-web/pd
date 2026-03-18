@@ -1,17 +1,29 @@
 """
 Shared AST similarity using Jaccard n-gram overlap.
 Used by all tree-sitter plagiarism detectors instead of difflib.SequenceMatcher.
+No hard limit on code length: for very long ASTs we sample n-grams to keep runtime bounded.
 """
 
+import random
+
 DEFAULT_N = 4
+# Max n-grams per AST to avoid O(tokens) set size on huge files; sampling keeps Jaccard stable
+MAX_NGRAMS = 12000
+# AST token count above which we sample n-grams (avoids huge sets for long code)
+SAMPLING_TOKEN_THRESHOLD = 8000
 
 
 def get_ngrams(ast_string: str, n: int = DEFAULT_N) -> set:
-    """Extract n-grams (contiguous token tuples) from tokenized AST string."""
+    """Extract n-grams (contiguous token tuples) from tokenized AST string.
+    For long ASTs (many tokens), sample up to MAX_NGRAMS n-grams so runtime stays bounded."""
     tokens = ast_string.split()
     if len(tokens) < n:
         return set()
-    return set(tuple(tokens[i : i + n]) for i in range(len(tokens) - n + 1))
+    num_ngrams = len(tokens) - n + 1
+    if num_ngrams <= MAX_NGRAMS:
+        return set(tuple(tokens[i : i + n]) for i in range(num_ngrams))
+    indices = random.Random(42).sample(range(num_ngrams), MAX_NGRAMS)
+    return set(tuple(tokens[i : i + n]) for i in indices)
 
 
 def compute_jaccard_similarity(
