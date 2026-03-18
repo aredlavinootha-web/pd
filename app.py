@@ -1191,15 +1191,28 @@ def api_check():
             len(similar_submissions),
         )
         try:
+            # Cap tool comparison to the top semantically similar submissions.
+            # Running copydetect/treesitter against all stored submissions scales as
+            # O(N_all × code_length) — with long code and many submissions this easily
+            # exceeds the worker timeout. The vector search already ranked the most
+            # relevant candidates; use those. Fall back to existing_submissions when
+            # the vector search returned nothing (e.g. first submission for a question).
+            MAX_TOOL_SUBMISSIONS = 50
+            tool_source = similar_submissions if similar_submissions else existing_submissions
             submissions_for_tools = [
-                {"id": sub.get("student_id") or sub["id"], "code": sub.get("code", "")}
-                for sub in existing_submissions
+                {
+                    "id": sub.get("student_id") or sub.get("id") or sub.get("submission_id", "unknown"),
+                    "code": sub.get("code", ""),
+                }
+                for sub in tool_source[:MAX_TOOL_SUBMISSIONS]
             ]
             tool_code_lens = [len(s.get("code", "") or "") for s in submissions_for_tools]
             logger.info(
-                "[Check] check_id=%s tool_inputs submissions=%d query_code_len=%d stored_code_len_min/max=%s/%s",
+                "[Check] check_id=%s tool_inputs submissions=%d (from %d existing, capped at %d) query_code_len=%d stored_code_len_min/max=%s/%s",
                 check_id,
                 len(submissions_for_tools),
+                len(existing_submissions),
+                MAX_TOOL_SUBMISSIONS,
                 len(code),
                 min(tool_code_lens) if tool_code_lens else 0,
                 max(tool_code_lens) if tool_code_lens else 0,
