@@ -1114,14 +1114,22 @@ def api_check():
                 len(query_chunks_emb),
                 time.perf_counter() - t_chunks,
             )
-            for chunk in query_chunks_emb:
+            def _search_one_chunk(chunk):
                 matches = vector_db.find_similar_chunks(
                     chunk["embedding"], question_id, 10, search_threshold, exam_id,
                 )
                 for m in matches:
                     m["query_chunk_index"] = chunk["index"]
                     m["query_chunk_text"] = chunk["text"]
-                similar_chunks.extend(matches)
+                return matches
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(query_chunks_emb), 5)) as executor:
+                chunk_futures = [executor.submit(_search_one_chunk, chunk) for chunk in query_chunks_emb]
+                for future in concurrent.futures.as_completed(chunk_futures):
+                    try:
+                        similar_chunks.extend(future.result())
+                    except Exception as e:
+                        logger.warning("[Check] check_id=%s chunk search error: %s", check_id, e)
 
             # Apply same filters to chunks
             if normalized_exclude:
