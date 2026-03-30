@@ -1540,6 +1540,123 @@ def api_get_submission(submission_id):
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/api/compare-direct", methods=["POST"])
+def api_compare_direct():
+    """
+    Direct 1:1 code comparison — compares exactly two code snippets without
+    involving the Pinecone database or any other submissions.
+
+    Request body:
+    {
+      "code1": str,          (student code)
+      "code2": str,          (AI-generated code)
+      "language": str        (optional, default "python")
+    }
+    """
+    try:
+        data = request.get_json(force=True, silent=True)
+        if not data:
+            return jsonify({"success": False, "error": "Invalid or missing JSON body"}), 400
+
+        code1 = (data.get("code1") or "").strip()
+        code2 = (data.get("code2") or "").strip()
+        language = data.get("language", "python")
+        custom_api_key = request.headers.get("X-OpenAI-API-Key")
+
+        if not code1 or not code2:
+            return jsonify({"success": False, "error": "Both code1 and code2 are required"}), 400
+
+        check_id = uuid.uuid4().hex[:12]
+        t_start = time.perf_counter()
+        logger.info(
+            "[API/compare-direct] START check_id=%s code1_len=%d code2_len=%d language=%s",
+            check_id, len(code1), len(code2), language,
+        )
+
+        other_students = [{"id": "ai-code", "code": code2}]
+
+        # --- Embedding cosine similarity ---
+        t_emb = time.perf_counter()
+        emb1 = embeddings.generate_code_embedding(code1, language, custom_api_key, True)
+        emb2 = embeddings.generate_code_embedding(code2, language, custom_api_key, True)
+        semantic_similarity = embeddings.cosine_similarity(emb1, emb2)
+        logger.info(
+            "[compare-direct] check_id=%s embeddings done semantic_sim=%.4f elapsed=%.3fs",
+            check_id, semantic_similarity, time.perf_counter() - t_emb,
+        )
+
+        # --- Tool-based comparisons (copydetect + treesitter + difflib) ---
+        t_tools = time.perf_counter()
+        tool_comparisons = _run_tool_comparisons(
+            "student_code", code1, other_students, language, 1, check_id,
+        )
+        difflib_result = compare_code_difflib("student_code", code1, other_students)
+        tool_comparisons.append(difflib_result)
+        logger.info(
+            "[compare-direct] check_id=%s tools done elapsed=%.3fs",
+            check_id, time.perf_counter() - t_tools,
+        )
+
+        external_result = _format_external_result(tool_comparisons, [], "student_code")
+
+        local_result_for_scoring = {
+            "has_matches": True,
+            "max_similarity": semantic_similarity,
+            "match_count": 1,
+            "submissions": [{"similarity": semantic_similarity, "code": code2}],
+        }
+        structural_data = {
+            "current_code": code1,
+            "compared_code": code2,
+            "language": language,
+        }
+
+        final_decision = _determine_final_decision(
+            local_result_for_scoring, external_result, 0.5, structural_data,
+        )
+
+        # Build a slim summary compatible with the frontend
+        max_similarity = semantic_similarity
+        for comp in external_result.get("comparisons", []):
+            for r in comp.get("results", []):
+                s = r.get("similarity", 0)
+                if s > max_similarity:
+                    max_similarity = s
+
+        summary = {
+            "totalMatchedSubmissions": 1,
+            "highSimilarity": 1 if max_similarity >= 0.85 else 0,
+            "moderateSimilarity": 1 if 0.75 <= max_similarity < 0.85 else 0,
+            "matchedChunks": 0,
+            "maxSimilarity": max_similarity,
+            "threshold": 0.5,
+        }
+
+        total_elapsed = time.perf_counter() - t_start
+        logger.info(
+            "[API/compare-direct] END check_id=%s overall_score=%.4f max_sim=%.4f elapsed=%.3fs",
+            check_id, final_decision.get("overallScore", 0), max_similarity, total_elapsed,
+        )
+
+        return jsonify({
+            "success": True,
+            "summary": summary,
+            "final_decision": final_decision,
+            "external_result": external_result,
+            "semantic_similarity": round(semantic_similarity, 4),
+            "timestamp": datetime.utcnow().isoformat(),
+        })
+
+    except Exception as e:
+        logger.error(f"[compare-direct Error] {e}")
+        msg = str(e)
+        if "quota" in msg:
+            return jsonify({"success": False, "error": "OpenAI API quota exceeded.", "errorType": "QUOTA_EXCEEDED"}), 402
+        if "API key" in msg:
+            return jsonify({"success": False, "error": "Invalid or missing OpenAI API key.", "errorType": "INVALID_API_KEY"}), 401
+        return jsonify({"success": False, "error": msg or "Internal server error"}), 500
+
+
 if __name__ == "__main__":
     import os
 
