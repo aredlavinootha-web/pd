@@ -1016,6 +1016,14 @@ def api_check():
         )
 
         # Pre-calculation filtering
+        before_ai_count = len(existing_submissions)
+        existing_submissions = [
+            s for s in existing_submissions
+            if (s.get("student_id") or "").strip().lower() != "ai-chatgpt"
+        ]
+        if before_ai_count != len(existing_submissions):
+            logger.info(f'[Check] Excluded ai-chatgpt: {before_ai_count} -> {len(existing_submissions)} submissions')
+
         if normalized_exclude:
             before_count = len(existing_submissions)
             existing_submissions = [
@@ -1095,6 +1103,11 @@ def api_check():
         )
 
         # Apply same pre-filters to vector search results
+        similar_submissions = [
+            s for s in similar_submissions
+            if (s.get("student_id") or "").strip().lower() != "ai-chatgpt"
+        ]
+
         if normalized_exclude:
             similar_submissions = [
                 s for s in similar_submissions
@@ -1152,6 +1165,11 @@ def api_check():
             )
 
             # Apply same filters to chunks
+            similar_chunks = [
+                c for c in similar_chunks
+                if (c.get("student_id") or "").strip().lower() != "ai-chatgpt"
+            ]
+
             if normalized_exclude:
                 similar_chunks = [
                     c for c in similar_chunks
